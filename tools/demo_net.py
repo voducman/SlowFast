@@ -112,6 +112,7 @@ def demo(cfg):
         sub_dir = video_path.split("/")[-2]
         cfg.DEMO.INPUT_VIDEO = video_path
         cfg.OUTPUT_DIR = os.path.join(conf_output_dir, sub_dir)
+        os.makedirs(cfg.OUTPUT_DIR)
         # AVA format-specific visualization with precomputed boxes.
         if cfg.DETECTION.ENABLE and cfg.DEMO.PREDS_BOXES != "":
             precomputed_box_vis = AVAVisualizerWithPrecomputedBox(cfg)
