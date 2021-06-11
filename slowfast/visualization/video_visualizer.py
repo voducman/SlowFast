@@ -466,7 +466,7 @@ class VideoVisualizer:
             )
         frame_visualizer = ImgVisualizer(frame, meta=None)
         font_size = min(
-            max(np.sqrt(frame.shape[0] * frame.shape[1]) // 35, 10), 16
+            max(np.sqrt(frame.shape[0] * frame.shape[1]) // 35, 20), 20
         )
         top_corner = not ground_truth
         if bboxes is not None:
