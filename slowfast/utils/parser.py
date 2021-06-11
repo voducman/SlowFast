@@ -90,5 +90,6 @@ def load_config(args):
         cfg.OUTPUT_DIR = args.output_dir
 
     # Create the checkpoint dir.
-    cu.make_checkpoint_dir(cfg.OUTPUT_DIR)
+    # comment line below because it not save any things to this dir
+    # cu.make_checkpoint_dir(cfg.OUTPUT_DIR)
     return cfg

@@ -4,6 +4,8 @@
 import numpy as np
 import time
 import torch
+import os
+from glob import glob
 from tqdm import tqdm
 
 from slowfast.utils import logging
@@ -100,20 +102,33 @@ def demo(cfg):
         cfg (CfgNode): configs. Details can be found in
             slowfast/config/defaults.py
     """
-    # AVA format-specific visualization with precomputed boxes.
-    if cfg.DETECTION.ENABLE and cfg.DEMO.PREDS_BOXES != "":
-        precomputed_box_vis = AVAVisualizerWithPrecomputedBox(cfg)
-        precomputed_box_vis()
-    else:
-        start = time.time()
-        if cfg.DEMO.THREAD_ENABLE:
-            frame_provider = ThreadVideoManager(cfg)
+    if not os.path.isdir(cfg.DEMO.INPUT_VIDEO):
+        raise Exception("Demo input video is currently not a directory.")
+
+    video_paths = glob(os.path.join(cfg.DEMO.INPUT_VIDEO, "*", "*.mp4"))
+    conf_output_dir = cfg.OUTPUT_DIR
+
+    for video_path in video_paths:
+        sub_dir = video_path.split("/")[-2]
+        cfg.DEMO.INPUT_VIDEO = video_path
+        cfg.OUTPUT_DIR = os.path.join(conf_output_dir, sub_dir)
+        # AVA format-specific visualization with precomputed boxes.
+        if cfg.DETECTION.ENABLE and cfg.DEMO.PREDS_BOXES != "":
+            precomputed_box_vis = AVAVisualizerWithPrecomputedBox(cfg)
+            precomputed_box_vis()
         else:
-            frame_provider = VideoManager(cfg)
+            start = time.time()
+            if cfg.DEMO.THREAD_ENABLE:
+                frame_provider = ThreadVideoManager(cfg)
+            else:
+                frame_provider = VideoManager(cfg)
 
-        for task in tqdm(run_demo(cfg, frame_provider)):
-            frame_provider.display(task)
+            for task in tqdm(run_demo(cfg, frame_provider)):
+                frame_provider.display(task)
 
-        frame_provider.join()
-        frame_provider.clean()
-        logger.info("Finish demo in: {}".format(time.time() - start))
+            frame_provider.join()
+            frame_provider.clean()
+            logger.info("Finish demo in: {}".format(time.time() - start))
+
+
+
