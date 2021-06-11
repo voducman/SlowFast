@@ -4,7 +4,7 @@
 import numpy as np
 import time
 import torch
-import tqdm
+from tqdm import tqdm
 
 from slowfast.utils import logging
 from slowfast.visualization.async_predictor import AsyncDemo, AsyncVis
@@ -111,7 +111,7 @@ def demo(cfg):
         else:
             frame_provider = VideoManager(cfg)
 
-        for task in tqdm.tqdm(run_demo(cfg, frame_provider)):
+        for task in tqdm(run_demo(cfg, frame_provider)):
             frame_provider.display(task)
 
         frame_provider.join()
