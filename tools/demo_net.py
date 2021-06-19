@@ -114,6 +114,7 @@ def demo(cfg):
         cfg.DEMO.INPUT_VIDEO = video_path
         cfg.OUTPUT_DIR = os.path.join(conf_output_dir, sub_dir)
         cfg.DEMO.OUTPUT_FILE = os.path.join(cfg.OUTPUT_DIR, video_name)
+
         if not os.path.exists(cfg.OUTPUT_DIR):
             os.makedirs(cfg.OUTPUT_DIR)
         # AVA format-specific visualization with precomputed boxes.
@@ -122,6 +123,7 @@ def demo(cfg):
             precomputed_box_vis()
         else:
             start = time.time()
+            print("Start recognizing on video: ", video_name)
             if cfg.DEMO.THREAD_ENABLE:
                 frame_provider = ThreadVideoManager(cfg)
             else:
@@ -132,7 +134,7 @@ def demo(cfg):
 
             frame_provider.join()
             frame_provider.clean()
-            logger.info("Finish demo in: {}".format(time.time() - start))
+            logger.info("Finish demo {} in: {}".format(video_name, time.time() - start))
 
 
 
