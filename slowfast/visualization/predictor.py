@@ -3,7 +3,9 @@
 
 import queue
 import cv2
+import numpy as np
 import torch
+import copy
 from detectron2 import model_zoo
 from detectron2.config import get_cfg
 from detectron2.engine import DefaultPredictor
@@ -35,9 +37,13 @@ class Predictor:
             )
 
         # Build the video model and print model statistics.
-        self.model = build_model(cfg, gpu_id=gpu_id)
+        cfg_copy = copy.deepcopy(cfg)
+        # to build SlowFast using ResNetBasicHead module
+        cfg_copy.DETECTION.ENABLE = False
+        self.model = build_model(cfg_copy, gpu_id=gpu_id)
         self.model.eval()
-        self.cfg = cfg
+        self.cfg = cfg_copy
+        self.enable_detection = cfg.DETECTION.ENABLE
 
         if cfg.DETECTION.ENABLE:
             self.object_detector = Detectron2Predictor(cfg, gpu_id=self.gpu_id)
@@ -57,8 +63,9 @@ class Predictor:
                 prediction values (a tensor) and the corresponding boxes for
                 action detection task.
         """
-        if self.cfg.DETECTION.ENABLE:
+        if self.enable_detection:
             task = self.object_detector(task)
+            person_frames_list = task.extract_person_clip()
 
         frames, bboxes = task.frames, task.bboxes
         if bboxes is not None:
@@ -197,11 +204,16 @@ class Detectron2Predictor:
                 prediction values (a tensor) and the corresponding boxes for
                 action detection task.
         """
-        middle_frame = task.frames[len(task.frames) // 2]
-        outputs = self.predictor(middle_frame)
-        # Get only human instances
-        mask = outputs["instances"].pred_classes == 0
-        pred_boxes = outputs["instances"].pred_boxes.tensor[mask]
-        task.add_bboxes(pred_boxes)
+        indexes = np.linspace(0, 0.75*len(task.frames), 4, dtype=np.int32)
+        for i, idx in enumerate(indexes):
+            frame = task.frames[idx]
+            outputs = self.predictor(frame)
+            # Get only human instances
+            mask = outputs["instances"].pred_classes == 0
+            pred_boxes = outputs["instances"].pred_boxes.tensor[mask]
+
+            if i == 2: # middle frame
+                task.add_bboxes(pred_boxes)
+            task.add_series_bboxes(pred_boxes)
 
         return task

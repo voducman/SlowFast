@@ -864,7 +864,7 @@ _C.DEMO.DETECTRON2_THRESH = 0.9
 # Increase this number for more frequent action predictions.
 # The number of overlapping frames cannot be larger than
 # half of the sequence length `cfg.DATA.NUM_FRAMES * cfg.DATA.SAMPLING_RATE`
-_C.DEMO.BUFFER_SIZE = 0
+_C.DEMO.BUFFER_SIZE = 1
 # If specified, the visualized outputs will be written this a video file of
 # this path. Otherwise, the visualized outputs will be displayed in a window.
 _C.DEMO.OUTPUT_FILE = ""

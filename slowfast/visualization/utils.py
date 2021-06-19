@@ -2,7 +2,10 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
 
 import itertools
+import os
+
 import numpy as np
+import cv2
 import matplotlib.pyplot as plt
 import torch
 from sklearn.metrics import confusion_matrix
@@ -343,8 +346,10 @@ def get_layer(model, layer_name):
 class TaskInfo:
     def __init__(self):
         self.frames = None
+        self.detect_batch_frames = []
         self.id = -1
         self.bboxes = None
+        self.series_bboxes = []
         self.action_preds = None
         self.num_buffer_frames = 0
         self.img_height = -1
@@ -364,12 +369,39 @@ class TaskInfo:
 
     def add_bboxes(self, bboxes):
         """
-        Add correspondding bounding boxes.
+        Add corresponding bounding boxes.
         """
         self.bboxes = bboxes
+
+    def add_series_bboxes(self, bboxes):
+        """
+        Add corresponding bounding boxes in order of time,
+        reserve for tracking task.
+        :param bboxes:
+        :return: None
+        """
+        self.series_bboxes.append(bboxes)
 
     def add_action_preds(self, preds):
         """
         Add the corresponding action predictions.
         """
         self.action_preds = preds
+
+    def extract_person_clip(self):
+        if self.bboxes is not None:
+            for bbox in self.bboxes:
+                bbox = np.array(bbox, dtype=np.int32)
+                # padding to bbox to cover fully person.
+                bbox[bbox<50] = 50
+                bbox += [-50, -50, 50, 50]
+                x1, y1, x2, y2 = bbox
+                person_frames = [f[y1:y2, x1:x2, :] for f in self.frames]
+                self.detect_batch_frames.append(person_frames)
+                # only for testing purpose
+                os.makedirs("person_clips", exist_ok=True)
+                for i, img in enumerate(person_frames):
+                    cv2.imwrite(f"person_clips/{self.id}-{i}.jpg", img)
+            return self.detect_batch_frames
+
+        return None
