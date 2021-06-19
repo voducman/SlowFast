@@ -294,7 +294,7 @@ def draw_predictions(task, video_vis):
             task.crop_size, boxes, img_height, img_width
         )
 
-    keyframe_idx = len(frames) // 2 - task.num_buffer_frames
+    keyframe_idx = len(frames) // 2
     draw_range = [
         keyframe_idx - task.clip_vis_size,
         keyframe_idx + task.clip_vis_size,

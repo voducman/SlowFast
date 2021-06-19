@@ -69,7 +69,7 @@ class Predictor:
 
         # return if no person detected in keyframe
         if len(person_frames_list) == 0:
-            return
+            return task
 
         if self.cfg.DEMO.INPUT_FORMAT == "BGR":
             person_frames_list_rgb = [[cv2.cvtColor(f, cv2.COLOR_BGR2RGB) for f in frames] for frames in person_frames_list]
@@ -193,9 +193,9 @@ class Detectron2Predictor:
             # Get only human instances
             mask = outputs["instances"].pred_classes == 0
             pred_boxes = outputs["instances"].pred_boxes.tensor[mask]
-            if pred_boxes.shape[0] == 0:
-                continue
-            if i == 2: # middle frame
+            if len(pred_boxes) == 0:
+                pred_boxes = None
+            if i == 2 and pred_boxes is not None: # middle frame
                 task.add_bboxes(pred_boxes)
             task.add_series_bboxes(pred_boxes)
 
