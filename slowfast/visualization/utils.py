@@ -409,6 +409,5 @@ class TaskInfo:
                 # os.makedirs("person_clips", exist_ok=True)
                 # for i, img in enumerate(person_frames):
                 #     cv2.imwrite(f"person_clips/{self.id}-{i}.jpg", img)
-            return self.detect_batch_frames
+        return self.detect_batch_frames
 
-        return None
