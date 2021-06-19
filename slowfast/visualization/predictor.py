@@ -69,6 +69,7 @@ class Predictor:
 
         # return if no person detected in keyframe
         if len(person_frames_list) == 0:
+            task.add_action_preds(torch.tensor([]))
             return task
 
         if self.cfg.DEMO.INPUT_FORMAT == "BGR":
@@ -197,6 +198,6 @@ class Detectron2Predictor:
                 pred_boxes = None
             if i == 2 and pred_boxes is not None: # middle frame
                 task.add_bboxes(pred_boxes)
-            task.add_series_bboxes(pred_boxes)
+            task.add_series_bboxes(pred_boxes.clone().detach().cpu() if (pred_boxes is not None) else None)
 
         return task
