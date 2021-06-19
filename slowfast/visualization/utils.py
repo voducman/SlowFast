@@ -390,18 +390,17 @@ class TaskInfo:
 
     def extract_person_clip(self):
         if self.bboxes is not None:
-            for bbox in self.bboxes:
-                bbox = np.array(bbox, dtype=np.int32)
-                # padding to bbox to cover fully person.
-                bbox[bbox<50] = 50
-                bbox += [-50, -50, 50, 50]
-                x1, y1, x2, y2 = bbox
+            for b in self.bboxes:
+                bbox = b.clone()
+                bbox[bbox < 50] = 50
+                bbox += torch.tensor([-50, -50, 50, 50], dtype=torch.int32).cuda(bbox.device)
+                x1, y1, x2, y2 = bbox.int()
                 person_frames = [f[y1:y2, x1:x2, :] for f in self.frames]
                 self.detect_batch_frames.append(person_frames)
                 # only for testing purpose
-                os.makedirs("person_clips", exist_ok=True)
-                for i, img in enumerate(person_frames):
-                    cv2.imwrite(f"person_clips/{self.id}-{i}.jpg", img)
+                # os.makedirs("person_clips", exist_ok=True)
+                # for i, img in enumerate(person_frames):
+                #     cv2.imwrite(f"person_clips/{self.id}-{i}.jpg", img)
             return self.detect_batch_frames
 
         return None
