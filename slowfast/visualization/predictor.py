@@ -67,58 +67,35 @@ class Predictor:
             task = self.object_detector(task)
             person_frames_list = task.extract_person_clip()
 
-        frames, bboxes = task.frames, task.bboxes
-        if bboxes is not None:
-            bboxes = cv2_transform.scale_boxes(
-                self.cfg.DATA.TEST_CROP_SIZE,
-                bboxes,
-                task.img_height,
-                task.img_width,
-            )
         if self.cfg.DEMO.INPUT_FORMAT == "BGR":
-            frames = [
-                cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) for frame in frames
-            ]
+            person_frames_list_rgb = [[cv2.cvtColor(f, cv2.COLOR_BGR2RGB) for f in frames] for frames in person_frames_list]
 
-        frames = [
-            cv2_transform.scale(self.cfg.DATA.TEST_CROP_SIZE, frame)
-            for frame in frames
+        person_frames_list_rgb = [
+            [cv2_transform.scale(self.cfg.DATA.TEST_CROP_SIZE, f) for f in frames] for frames in person_frames_list_rgb
         ]
-        inputs = process_cv2_inputs(frames, self.cfg)
-        if bboxes is not None:
-            index_pad = torch.full(
-                size=(bboxes.shape[0], 1),
-                fill_value=float(0),
-                device=bboxes.device,
-            )
+        batch_inputs = process_cv2_inputs(person_frames_list_rgb, self.cfg)
 
-            # Pad frame index for each box.
-            bboxes = torch.cat([index_pad, bboxes], axis=1)
         if self.cfg.NUM_GPUS > 0:
             # Transfer the data to the current GPU device.
-            if isinstance(inputs, (list,)):
-                for i in range(len(inputs)):
-                    inputs[i] = inputs[i].cuda(
+            if isinstance(batch_inputs, (list,)):
+                for i in range(len(batch_inputs)):
+                    batch_inputs[i] = batch_inputs[i].cuda(
                         device=torch.device(self.gpu_id), non_blocking=True
                     )
             else:
-                inputs = inputs.cuda(
+                batch_inputs = batch_inputs.cuda(
                     device=torch.device(self.gpu_id), non_blocking=True
                 )
-        if self.cfg.DETECTION.ENABLE and not bboxes.shape[0]:
-            preds = torch.tensor([])
-        else:
-            preds = self.model(inputs, bboxes)
+
+        preds = self.model(batch_inputs)
 
         if self.cfg.NUM_GPUS:
             preds = preds.cpu()
-            if bboxes is not None:
-                bboxes = bboxes.detach().cpu()
+            if task.bboxes is not None:
+                bboxes = task.bboxes.detach().cpu()
 
         preds = preds.detach()
         task.add_action_preds(preds)
-        if bboxes is not None:
-            task.add_bboxes(bboxes[:, 1:])
 
         return task
 

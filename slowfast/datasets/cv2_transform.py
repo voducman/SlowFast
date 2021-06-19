@@ -85,20 +85,8 @@ def scale(size, image):
         (ndarray): the scaled image with dimension of
             `height` x `width` x `channel`.
     """
-    height = image.shape[0]
-    width = image.shape[1]
-    if (width <= height and width == size) or (
-        height <= width and height == size
-    ):
-        return image
-    new_width = size
-    new_height = size
-    if width < height:
-        new_height = int(math.floor((float(height) / width) * size))
-    else:
-        new_width = int(math.floor((float(width) / height) * size))
     img = cv2.resize(
-        image, (new_width, new_height), interpolation=cv2.INTER_LINEAR
+        image, (size, size), interpolation=cv2.INTER_LINEAR
     )
     return img.astype(np.float32)
 

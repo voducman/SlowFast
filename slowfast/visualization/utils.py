@@ -304,25 +304,33 @@ def process_layer_index_data(layer_ls, layer_name_prefix=""):
     return layer_name, indexing_dict
 
 
-def process_cv2_inputs(frames, cfg):
+def process_cv2_inputs(frames_list, cfg):
     """
     Normalize and prepare inputs as a list of tensors. Each tensor
-    correspond to a unique pathway.
+    correspond to a unique pathway. (with batch dim)
     Args:
-        frames (list of array): list of input images (correspond to one clip) in range [0, 255].
+        frames_list (list of array): batch of list of input images (correspond to one clip) in range [0, 255].
         cfg (CfgNode): configs. Details can be found in
             slowfast/config/defaults.py
     """
-    inputs = torch.from_numpy(np.array(frames)).float() / 255
-    inputs = tensor_normalize(inputs, cfg.DATA.MEAN, cfg.DATA.STD)
-    # T H W C -> C T H W.
-    inputs = inputs.permute(3, 0, 1, 2)
-    # Sample frames for num_frames specified.
-    index = torch.linspace(0, inputs.shape[1] - 1, cfg.DATA.NUM_FRAMES).long()
-    inputs = torch.index_select(inputs, 1, index)
-    inputs = pack_pathway_output(cfg, inputs)
-    inputs = [inp.unsqueeze(0) for inp in inputs]
-    return inputs
+    batch_inputs = [[], []]
+
+    for frames in frames_list:
+        inputs = torch.from_numpy(np.array(frames)).float() / 255
+        inputs = tensor_normalize(inputs, cfg.DATA.MEAN, cfg.DATA.STD)
+        # T H W C -> C T H W.
+        inputs = inputs.permute(3, 0, 1, 2)
+        # Sample frames for num_frames specified.
+        index = torch.linspace(0, inputs.shape[1] - 1, cfg.DATA.NUM_FRAMES).long()
+        inputs = torch.index_select(inputs, 1, index)
+        inputs = pack_pathway_output(cfg, inputs)
+        # append frames to produce batch frames
+        batch_inputs[0].append(inputs[0])
+        batch_inputs[1].append(inputs[1])
+
+    batch_inputs[0] = torch.stack(batch_inputs[0])
+    batch_inputs[1] = torch.stack(batch_inputs[1])
+    return batch_inputs
 
 
 def get_layer(model, layer_name):
