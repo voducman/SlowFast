@@ -14,17 +14,16 @@ pip install moviepy
 pip install pytorchvideo
 pip install sklearn
 
+# cuda vs cudnn
+conda install -c anaconda cudatoolkit=11.0
+conda install -c nvidia cudnn=8.0.4
+
+pip install tensorflow-gpu==2.4.0
+
 # Detectron2
 pip install -U torch torchvision cython
 pip install -U 'git+https://github.com/facebookresearch/fvcore.git' 'git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI'
 git clone https://github.com/facebookresearch/detectron2 detectron2_repo
 pip install -e detectron2_repo
 
-# cuda vs cudnn
-conda install -c anaconda cudatoolkit=10.2 -y
-conda install -c nvidia cudnn=8.0.4 -y
-
-# dependencies for tracking
-pip install tensorflow-gpu
-pip install scipy
 echo "Dependencies were installed successfully."
