@@ -15,6 +15,10 @@ from slowfast.datasets import cv2_transform
 from slowfast.models import build_model
 from slowfast.utils import logging
 from slowfast.visualization.utils import process_cv2_inputs
+from tracking.sources.tracker import Tracker
+from tracking.sources.feature_extractor import FeatureExtractor
+from tracking.sources.nn_matching import NearestNeighborDistanceMetric
+from tracking.sources.util import create_detections, get_batch_detection
 
 logger = logging.get_logger(__name__)
 
@@ -40,17 +44,24 @@ class Predictor:
         cfg_copy = copy.deepcopy(cfg)
         # to build SlowFast using ResNetBasicHead module
         cfg_copy.DETECTION.ENABLE = False
-        self.model = build_model(cfg_copy, gpu_id=gpu_id)
-        self.model.eval()
+        # self.model = build_model(cfg_copy, gpu_id=gpu_id)
+        # self.model.eval()
+        self.softmax_for_test = torch.nn.Softmax(dim=1)
         self.cfg = cfg_copy
         self.enable_detection = cfg.DETECTION.ENABLE
 
         if cfg.DETECTION.ENABLE:
-            self.object_detector = Detectron2Predictor(cfg, gpu_id=self.gpu_id)
+            self.object_detector = Detectron2Predictor(cfg, gpu_id=self.gpu_id if cfg.NUM_GPUS > 0 else None)
 
-        logger.info("Start loading model weights.")
-        cu.load_test_checkpoint(cfg, self.model)
-        logger.info("Finish loading model weights")
+        # logger.info("Start loading model weights.")
+        # cu.load_test_checkpoint(cfg, self.model)
+        # logger.info("Finish loading model weights")
+
+        # traking
+        metric = NearestNeighborDistanceMetric("cosine", matching_threshold=0.3, budget=10)
+        self.tracker = Tracker(metric)
+        self.feature_extractor = FeatureExtractor("tracking/checkpoint/mars-small128.pb")
+
 
     def __call__(self, task):
         """
@@ -65,7 +76,38 @@ class Predictor:
         """
         if self.enable_detection:
             task = self.object_detector(task)
+
+            # Tracking
+            tracking_frame_interval = int((self.cfg.DATA.NUM_FRAMES * self.cfg.DATA.SAMPLING_RATE)/4)
+            for i, bboxes in enumerate(task.series_bboxes):
+                bboxes = bboxes.clone()
+                self.tracker.predict()
+                if bboxes is not None:
+                    batch_detection_image = get_batch_detection(bboxes, task.frams[i*tracking_frame_interval])
+                    human_features = self.feature_extractor(batch_detection_image, batch_size=4)
+
+                    # Add fake detection confidence to bboxes
+                    bboxes = torch.cat([bboxes, torch.ones((bboxes.shape[0], 1))], 1)
+                    detections = create_detections(bboxes, human_features)
+                    self.tracker.update(detections)
+
+                    # Update task.bboxes follow up boxes order of tracker's results
+                    if i == 2:
+                        updated_bboxes = [track.to_tlbr() for track in self.tracker.tracks if track.is_confirmed() and track.time_since_update == 0]
+                        task.add_bboxes(torch.tensor(updated_bboxes))
             person_frames_list = task.extract_person_clip()
+
+            if task.bboxes is not None:
+                fake_preds = torch.rand([task.bboxes.shape[0], self.cfg.MODEL.NUM_CLASSES], dtype=torch.float)
+                task.add_action_preds(self.softmax_for_test(fake_preds))
+            else:
+                task.add_action_preds(torch.tensor([]))
+            print("Bboxes.shape: {}, Preds.shape: {}".format(
+                task.bboxes.shape if task.bboxes is not None else [],
+                task.action_preds.shape if task.action_preds is not None else []
+            ))
+            return task
+        ###
 
         # return if no person detected in keyframe
         if len(person_frames_list) == 0:
@@ -96,13 +138,9 @@ class Predictor:
 
         if self.cfg.NUM_GPUS:
             preds = preds.cpu()
-            if task.bboxes is not None:
-                bboxes = task.bboxes.detach().cpu()
 
         preds = preds.detach()
         task.add_action_preds(preds)
-        task.add_bboxes(bboxes)
-
         return task
 
 
@@ -197,7 +235,7 @@ class Detectron2Predictor:
             if len(pred_boxes) == 0:
                 pred_boxes = None
             if i == 2 and pred_boxes is not None: # middle frame
-                task.add_bboxes(pred_boxes)
-            task.add_series_bboxes(pred_boxes.clone().detach().cpu() if (pred_boxes is not None) else None)
+                task.add_bboxes(pred_boxes.detach().cpu())
+            task.add_series_bboxes(pred_boxes.detach().cpu() if (pred_boxes is not None) else None)
 
         return task

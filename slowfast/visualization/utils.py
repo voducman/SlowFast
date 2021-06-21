@@ -400,8 +400,11 @@ class TaskInfo:
         if self.bboxes is not None:
             for b in self.bboxes:
                 bbox = b.clone()
-                bbox[bbox < 50] = 50
-                bbox += torch.tensor([-50, -50, 50, 50], dtype=torch.int32).cuda(bbox.device)
+                bbox[bbox < 80] = 80
+                if bbox.is_cuda:
+                    bbox += torch.tensor([-80, -80, 80, 80], dtype=torch.int32).cuda(bbox.device)
+                else:
+                    bbox += torch.tensor([-80, -80, 80, 80], dtype=torch.int32)
                 x1, y1, x2, y2 = bbox.int()
                 person_frames = [f[y1:y2, x1:x2, :] for f in self.frames]
                 self.detect_batch_frames.append(person_frames)

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
+import traceback
 
 import numpy as np
 import time
@@ -77,7 +78,6 @@ def run_demo(cfg, frame_provider):
             time.sleep(0.02)
             continue
         num_task += 1
-
         model.put(task)
         try:
             task = model.get()
