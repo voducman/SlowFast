@@ -860,6 +860,9 @@ _C.DEMO.DETECTRON2_CFG = "COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml"
 _C.DEMO.DETECTRON2_WEIGHTS = "detectron2://COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458/model_final_280758.pkl"
 # Threshold for choosing predicted bounding boxes by Detectron2.
 _C.DEMO.DETECTRON2_THRESH = 0.9
+_C.DEMO.YOLOV5_THRESH = 0.7
+# size of yolov5 model ['s','m','l','x'] ~ small, medium, large, xlarge
+_C.DEMO.YOLOV5_SIZE = 's'
 # Number of overlapping frames between 2 consecutive clips.
 # Increase this number for more frequent action predictions.
 # The number of overlapping frames cannot be larger than

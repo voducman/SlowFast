@@ -51,7 +51,8 @@ class Predictor:
         self.enable_detection = cfg.DETECTION.ENABLE
 
         if cfg.DETECTION.ENABLE:
-            self.object_detector = Detectron2Predictor(cfg, gpu_id=self.gpu_id if cfg.NUM_GPUS > 0 else None)
+            # self.object_detector = Detectron2Predictor(cfg, gpu_id=self.gpu_id if cfg.NUM_GPUS > 0 else None)
+            self.object_detector = Yolov5Detector(cfg, gpu_id=self.gpu_id if cfg.NUM_GPUS > 0 else None)
 
         logger.info("Start loading model weights.")
         cu.load_test_checkpoint(cfg, self.model)
@@ -61,7 +62,6 @@ class Predictor:
         metric = NearestNeighborDistanceMetric("cosine", matching_threshold=0.3, budget=10)
         self.tracker = Tracker(metric)
         self.feature_extractor = FeatureExtractor("tracking/checkpoint/mars-small128.pb")
-
 
     def __call__(self, task):
         """
@@ -95,19 +95,8 @@ class Predictor:
                         updated_bboxes = [track.to_tlbr() for track in self.tracker.tracks if track.is_confirmed() and track.time_since_update == 0]
                         task.add_bboxes(torch.tensor(updated_bboxes))
                         # print("Num of tracks:", len(updated_bboxes))
-            person_frames_list = task.extract_person_clip()
 
-            # if task.bboxes is not None:
-            #     fake_preds = torch.rand([task.bboxes.shape[0], self.cfg.MODEL.NUM_CLASSES], dtype=torch.float)
-            #     task.add_action_preds(self.softmax_for_test(fake_preds))
-            # else:
-            #     task.add_action_preds(torch.tensor([]))
-            # print("Bboxes.shape: {}, Preds.shape: {}".format(
-            #     task.bboxes.shape if task.bboxes is not None else [],
-            #     task.action_preds.shape if task.action_preds is not None else []
-            # ))
-            # return task
-        ###
+            person_frames_list = task.extract_person_clip()
 
         # return if no person detected in keyframe
         if len(person_frames_list) == 0:
@@ -239,3 +228,67 @@ class Detectron2Predictor:
             task.add_series_bboxes(pred_boxes.detach().cpu() if (pred_boxes is not None) else None)
 
         return task
+
+
+class Yolov5Detector:
+    """
+    Wrapper around YoloV5 to return the required predicted bounding boxes
+    as a ndarray.
+    """
+    def __init__(self, cfg, gpu_id=None):
+        """
+        Args:
+            cfg (CfgNode): configs. Details can be found in
+                slowfast/config/defaults.py
+            gpu_id (Optional[int]): GPU id.
+        """
+
+        self.input_format = cfg.DEMO.INPUT_FORMAT
+        self.conf_thresh = cfg.DEMO.YOLOV5_THRESH
+
+        if cfg.NUM_GPUS and gpu_id is None:
+            gpu_id = torch.cuda.current_device()
+        self.device = torch.device("cuda:{}".format(gpu_id) if cfg.NUM_GPUS > 0 else "cpu")
+        logger.info("Initialized YoloV5 Object Detection Model.")
+
+        self.predictor = torch.hub.load(
+            'ultralytics/yolov5',
+            'yolov5{}'.format(self.cfg.DEMO.YOLOV5_SIZE),
+            pretrained=True,
+            device=self.device)
+
+    def __call__(self, task):
+        """
+        Return bounding boxes predictions as a tensor.
+        Args:
+            task (TaskInfo object): task object that contain
+                the necessary information for action prediction. (e.g. frames)
+        Returns:
+            task (TaskInfo object): the same task info object but filled with
+                prediction values (a tensor) and the corresponding boxes for
+                action detection task.
+        """
+        indexes = np.linspace(0, 0.75*len(task.frames), 4, dtype=np.int32)
+        batch_frames = [task.frames[idx] for idx in indexes]
+        if self.input_format.lower() == 'bgr':
+            batch_frames = [cv2.cvtColor(f, cv2.COLOR_BGR2RGB) for f in batch_frames]
+        preds = self.predictor(batch_frames)
+        for i, xyxy in enumerate(preds.xyxy):
+            conditions = (xyxy[:, 5] == 0) & (xyxy[:, 4] >= 0.8)
+            bboxes = xyxy[conditions][:, :4].int()
+            if bboxes.is_cuda:
+                bboxes = bboxes.detach().cpu()
+            else:
+                bboxes = bboxes.detach()
+
+            # keyframe in num_frames * sampling_rate (ex: frames[32])
+            if i == 2 and bboxes.shape[0] > 0:
+                task.add_bboxes(bboxes)
+
+            task.add_series_bboxes(bboxes if bboxes.shape[0] > 0 else None)
+        return task
+
+
+
+
+
