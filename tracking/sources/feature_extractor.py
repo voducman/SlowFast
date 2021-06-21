@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import tensorflow.compat.v1 as tf
+tf.config.set_visible_devices([], 'GPU')
 
 
 def _run_in_batches(f, data_dict, out, batch_size):

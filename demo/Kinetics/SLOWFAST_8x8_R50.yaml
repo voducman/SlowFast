@@ -62,10 +62,10 @@ DETECTION:
   ALIGNED: False
 DEMO:
   ENABLE: True
-  LABEL_FILE_PATH: "/home/manvd1/Research/Action Recognition/kinetics_classnames.json" # Add local label file path here.
-  INPUT_VIDEO: "/home/manvd1/Research/Action Recognition/datasets/demo/cpu/"
+  LABEL_FILE_PATH: "/u01/manvd1/action-recognition/kinetics_classnames.json" # Add local label file path here.
+  INPUT_VIDEO: "/u01/manvd1/action-recognition/datasets/demo/tracking"
   OUTPUT_FILE: ""
-NUM_GPUS: 0
+NUM_GPUS: 1
 NUM_SHARDS: 1
 RNG_SEED: 0
 OUTPUT_DIR: "output"

@@ -44,18 +44,18 @@ class Predictor:
         cfg_copy = copy.deepcopy(cfg)
         # to build SlowFast using ResNetBasicHead module
         cfg_copy.DETECTION.ENABLE = False
-        # self.model = build_model(cfg_copy, gpu_id=gpu_id)
-        # self.model.eval()
-        self.softmax_for_test = torch.nn.Softmax(dim=1)
+        self.model = build_model(cfg_copy, gpu_id=gpu_id)
+        self.model.eval()
+        # self.softmax_for_test = torch.nn.Softmax(dim=1)
         self.cfg = cfg_copy
         self.enable_detection = cfg.DETECTION.ENABLE
 
         if cfg.DETECTION.ENABLE:
             self.object_detector = Detectron2Predictor(cfg, gpu_id=self.gpu_id if cfg.NUM_GPUS > 0 else None)
 
-        # logger.info("Start loading model weights.")
-        # cu.load_test_checkpoint(cfg, self.model)
-        # logger.info("Finish loading model weights")
+        logger.info("Start loading model weights.")
+        cu.load_test_checkpoint(cfg, self.model)
+        logger.info("Finish loading model weights")
 
         # traking
         metric = NearestNeighborDistanceMetric("cosine", matching_threshold=0.3, budget=10)
@@ -80,10 +80,9 @@ class Predictor:
             # Tracking
             tracking_frame_interval = int((self.cfg.DATA.NUM_FRAMES * self.cfg.DATA.SAMPLING_RATE)/4)
             for i, bboxes in enumerate(task.series_bboxes):
-                bboxes = bboxes.clone()
                 self.tracker.predict()
                 if bboxes is not None:
-                    batch_detection_image = get_batch_detection(bboxes, task.frams[i*tracking_frame_interval])
+                    batch_detection_image = get_batch_detection(bboxes, task.frames[i*tracking_frame_interval])
                     human_features = self.feature_extractor(batch_detection_image, batch_size=4)
 
                     # Add fake detection confidence to bboxes
@@ -95,18 +94,19 @@ class Predictor:
                     if i == 2:
                         updated_bboxes = [track.to_tlbr() for track in self.tracker.tracks if track.is_confirmed() and track.time_since_update == 0]
                         task.add_bboxes(torch.tensor(updated_bboxes))
+                        # print("Num of tracks:", len(updated_bboxes))
             person_frames_list = task.extract_person_clip()
 
-            if task.bboxes is not None:
-                fake_preds = torch.rand([task.bboxes.shape[0], self.cfg.MODEL.NUM_CLASSES], dtype=torch.float)
-                task.add_action_preds(self.softmax_for_test(fake_preds))
-            else:
-                task.add_action_preds(torch.tensor([]))
-            print("Bboxes.shape: {}, Preds.shape: {}".format(
-                task.bboxes.shape if task.bboxes is not None else [],
-                task.action_preds.shape if task.action_preds is not None else []
-            ))
-            return task
+            # if task.bboxes is not None:
+            #     fake_preds = torch.rand([task.bboxes.shape[0], self.cfg.MODEL.NUM_CLASSES], dtype=torch.float)
+            #     task.add_action_preds(self.softmax_for_test(fake_preds))
+            # else:
+            #     task.add_action_preds(torch.tensor([]))
+            # print("Bboxes.shape: {}, Preds.shape: {}".format(
+            #     task.bboxes.shape if task.bboxes is not None else [],
+            #     task.action_preds.shape if task.action_preds is not None else []
+            # ))
+            # return task
         ###
 
         # return if no person detected in keyframe
