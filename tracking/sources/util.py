@@ -1,7 +1,7 @@
 import cv2
 import os
 import numpy as np
-from sources.detection import Detection
+from .detection import Detection
 
 IMAGE_SHAPE = (128, 64)
 

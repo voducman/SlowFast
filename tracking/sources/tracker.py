@@ -1,10 +1,10 @@
 # vim: expandtab:ts=4:sw=4
 from __future__ import absolute_import
 import numpy as np
-from sources import kalman_filter
-from sources import linear_assignment
-from sources import iou_matching
-from sources.track import Track
+from . import kalman_filter
+from . import linear_assignment
+from . import iou_matching
+from .track import Track
 
 
 class Tracker:

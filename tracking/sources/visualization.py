@@ -1,6 +1,6 @@
 import numpy as np
 import colorsys
-from sources.image_viewer import ImageViewer
+from .image_viewer import ImageViewer
 
 
 def create_unique_color_float(tag, hue_step=0.41):
