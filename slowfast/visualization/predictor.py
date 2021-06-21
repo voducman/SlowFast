@@ -274,7 +274,7 @@ class Yolov5Detector:
             batch_frames = [cv2.cvtColor(f, cv2.COLOR_BGR2RGB) for f in batch_frames]
         preds = self.predictor(batch_frames)
         for i, xyxy in enumerate(preds.xyxy):
-            conditions = (xyxy[:, 5] == 0) & (xyxy[:, 4] >= 0.8)
+            conditions = (xyxy[:, 5] == 0) & (xyxy[:, 4] >= self.conf_thresh)
             bboxes = xyxy[conditions][:, :4].int()
             if bboxes.is_cuda:
                 bboxes = bboxes.detach().cpu()
