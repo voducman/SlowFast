@@ -134,7 +134,8 @@ def demo(cfg):
 
             frame_provider.join()
             frame_provider.clean()
-            logger.info("Finish demo {} in: {}".format(video_name, time.time() - start))
+            process_time = time.time() - start
+            logger.info("Finish demo {} in: {} [FPS: {}]".format(video_name, process_time, frame_provider.frame_count/process_time))
 
 
 

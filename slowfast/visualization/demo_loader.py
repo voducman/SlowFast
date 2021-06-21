@@ -64,7 +64,9 @@ class VideoManager:
         self.seq_length = cfg.DATA.NUM_FRAMES * cfg.DATA.SAMPLING_RATE
         self.test_crop_size = cfg.DATA.TEST_CROP_SIZE
         self.clip_vis_size = cfg.DEMO.CLIP_VIS_SIZE
-        self.batch_count = np.ceil(int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))/(self.seq_length-self.buffer_size))
+        self.frame_count = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        self.batch_count = np.ceil(self.frame_count/(self.seq_length-self.buffer_size))
+
 
     def __iter__(self):
         return self
