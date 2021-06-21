@@ -253,7 +253,7 @@ class Yolov5Detector:
 
         self.predictor = torch.hub.load(
             'ultralytics/yolov5',
-            'yolov5{}'.format(self.cfg.DEMO.YOLOV5_SIZE),
+            'yolov5{}'.format(cfg.DEMO.YOLOV5_SIZE),
             pretrained=True,
             device=self.device)
 
