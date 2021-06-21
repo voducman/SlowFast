@@ -82,7 +82,7 @@ def create_detections(xyxy_list, features):
 def get_batch_detection(xyxy_list, frame):
     detection_batch = []
     for coor in xyxy_list:
-        coor = coor.cpu().numpy().astype(np.uint16)
+        coor = coor.numpy()
         # frame is (h,w,c)
         sub_image = frame[coor[1]:coor[3], coor[0]:coor[2], :].copy()
         resize_image = resize(sub_image)

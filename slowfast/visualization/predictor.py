@@ -277,9 +277,9 @@ class Yolov5Detector:
             conditions = (xyxy[:, 5] == 0) & (xyxy[:, 4] >= self.conf_thresh)
             bboxes = xyxy[conditions][:, :4].int()
             if bboxes.is_cuda:
-                bboxes = bboxes.detach().cpu().numpy()
+                bboxes = bboxes.detach().cpu()
             else:
-                bboxes = bboxes.detach().numpy()
+                bboxes = bboxes.detach()
 
             # keyframe in num_frames * sampling_rate (ex: frames[32])
             if i == 2 and bboxes.shape[0] > 0:
