@@ -900,19 +900,20 @@ _C.DEMO.VIS_MODE = "thres"
 _C.DEMO.COMMON_CLASS_THRES = 0.7
 # Theshold for uncommon class names. This will not be
 # used if `_C.DEMO.COMMON_CLASS_NAMES` is empty.
-_C.DEMO.UNCOMMON_CLASS_THRES = 0.3
+_C.DEMO.UNCOMMON_CLASS_THRES = 1
 # This is chosen based on distribution of examples in
 # each classes in AVA dataset.
 _C.DEMO.COMMON_CLASS_NAMES = [
-    "watch (a person)",
-    "talk to (e.g., self, a person, a group)",
-    "listen to (a person)",
-    "touch (an object)",
-    "carry/hold (an object)",
-    "walk",
-    "sit",
-    "lie/sleep",
-    "bend/bow (at the waist)",
+    "laughing",
+    "writing",
+    "playing keyboard",
+    "reading book",
+    "shaking hands",
+    "drinking",
+    "dining",
+    "playing piano",
+    "playing tennis",
+    "playing volleyball"
 ]
 # Slow-motion rate for the visualization. The visualized portions of the
 # video will be played `_C.DEMO.SLOWMO` times slower than usual speed.
