@@ -96,7 +96,8 @@ class Tracker:
         for t in self.tracks:
             if t.is_confirmed() and t.time_since_update == 0:
                 pred = t.extract_pred()
-                preds.append(pred)
+                if pred is not None:
+                    preds.append(pred)
         return torch.tensor(preds)
 
     def _match(self, detections):
