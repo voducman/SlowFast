@@ -1,4 +1,6 @@
 # vim: expandtab:ts=4:sw=4
+import numpy as np
+import torch
 
 
 class TrackState:
@@ -80,6 +82,8 @@ class Track:
         self._n_init = n_init
         self._max_age = max_age
 
+        self.preds_history = []
+
     def to_tlwh(self):
         """Get current position in bounding box format `(top left x, top left y,
         width, height)`.
@@ -143,6 +147,28 @@ class Track:
         self.time_since_update = 0
         if self.state == TrackState.Tentative and self.hits >= self._n_init:
             self.state = TrackState.Confirmed
+
+    def update_pred(self, pred, budget=5):
+        if pred.shape[0] == 0:
+            self.preds_history.clear()
+            return
+        self.preds_history.append(pred)
+        if len(self.preds_history) == budget:
+            self.preds_history.pop(0)
+
+    def extract_pred(self):
+        preds = torch.tensor(self.preds_history)
+        klass_ids = torch.argmax(preds)
+        if len(klass_ids) == 1:
+            if klass_ids[0] == 288:  # sharking hands
+                return self.preds_history[0]
+        if len(klass_ids) >= 3:
+            instance, counts = torch.unique(klass_ids, return_counts=True)
+            major_klass = instance[torch.argmax(counts)]
+            if major_klass == 246 and torch.max(counts) > 1:
+                fake_pred = torch.zeros((1, 400), dtype=torch.float32)
+                fake_pred[0, major_klass] = 1.0
+                return fake_pred
 
     def mark_missed(self):
         """Mark this track as missed (no association at the current time step).

@@ -5,6 +5,7 @@ from . import kalman_filter
 from . import linear_assignment
 from . import iou_matching
 from .track import Track
+import torch
 
 
 class Tracker:
@@ -89,6 +90,14 @@ class Tracker:
             track.features = []
         self.metric.partial_fit(
             np.asarray(features), np.asarray(targets), active_targets)
+
+    def extract_preds(self):
+        preds = []
+        for t in self.tracks:
+            if t.is_confirmed() and t.time_since_update == 0:
+                pred = t.extract_pred()
+                preds.append(pred)
+        return torch.tensor(preds)
 
     def _match(self, detections):
 

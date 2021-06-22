@@ -129,7 +129,12 @@ class Predictor:
             preds = preds.cpu()
 
         preds = preds.detach()
-        task.add_action_preds(preds)
+        # task.add_action_preds(preds)
+        active_tracks = [track for track in self.tracker.tracks if track.is_confirmed() and track.time_since_update == 0]
+        for i, pred in enumerate(preds):
+            active_tracks[i].update_pred(pred)
+        visualize_preds = self.tracker.extract_preds()
+        task.add_action_preds(visualize_preds)
         return task
 
 
