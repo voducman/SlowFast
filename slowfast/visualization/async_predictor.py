@@ -290,9 +290,9 @@ def draw_predictions(task, video_vis):
         img_height = task.img_height
         if boxes.device != torch.device("cpu"):
             boxes = boxes.cpu()
-        boxes = cv2_transform.revert_scaled_boxes(
-            task.crop_size, boxes, img_height, img_width
-        )
+        # boxes = cv2_transform.revert_scaled_boxes(
+        #     task.crop_size, boxes, img_height, img_width
+        # )
 
     keyframe_idx = len(frames) // 2
     draw_range = [
