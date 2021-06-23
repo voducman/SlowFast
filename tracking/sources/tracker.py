@@ -94,11 +94,10 @@ class Tracker:
     def extract_preds(self):
         preds = []
         for t in self.tracks:
-            if t.is_confirmed() and t.time_since_update == 0:
-                pred = t.extract_pred()
-                if pred is not None:
-                    preds.append(pred)
-        return torch.tensor(preds)
+            pred = t.extract_pred()
+            if pred is not None:
+                preds.append(pred)
+        return torch.cat(preds, dim=0) if len(preds) > 0 else torch.tensor([])
 
     def _match(self, detections):
 

@@ -157,12 +157,15 @@ class Track:
             self.preds_history.pop(0)
 
     def extract_pred(self):
-        preds = torch.tensor(self.preds_history)
-        klass_ids = torch.argmax(preds)
-        if len(klass_ids) == 1:
+        if len(self.preds_history) == 0:
+            return None
+        preds = torch.stack(self.preds_history)
+        klass_ids = torch.argmax(preds, dim=1)
+        if klass_ids.shape[0] == 1:
             if klass_ids[0] == 288:  # sharking hands
                 return self.preds_history[0]
-        if len(klass_ids) >= 3:
+            return None
+        if klass_ids.shape[0] >= 3:
             instance, counts = torch.unique(klass_ids, return_counts=True)
             major_klass = instance[torch.argmax(counts)]
             if major_klass == 246 and torch.max(counts) > 1:

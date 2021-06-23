@@ -78,6 +78,7 @@ class Predictor:
             task = self.object_detector(task)
 
             # Tracking
+            active_tracks = []
             tracking_frame_interval = int((self.cfg.DATA.NUM_FRAMES * self.cfg.DATA.SAMPLING_RATE)/4)
             for i, bboxes in enumerate(task.series_bboxes):
                 self.tracker.predict()
@@ -92,9 +93,10 @@ class Predictor:
 
                     # Update task.bboxes follow up boxes order of tracker's results
                     if i == 2:
-                        updated_bboxes = [track.to_tlbr() for track in self.tracker.tracks if track.is_confirmed() and track.time_since_update == 0]
+                        active_tracks = [track for track in self.tracker.tracks if track.is_confirmed() and track.time_since_update == 0]
+                        updated_bboxes = [t.to_tlbr() for t in active_tracks]
                         task.add_bboxes(torch.tensor(updated_bboxes))
-                        # print("Num of tracks:", len(updated_bboxes))
+                        print("Num of tracks:", len(updated_bboxes))
 
             person_frames_list = task.extract_person_clip()
 
@@ -130,11 +132,16 @@ class Predictor:
 
         preds = preds.detach()
         # task.add_action_preds(preds)
-        active_tracks = [track for track in self.tracker.tracks if track.is_confirmed() and track.time_since_update == 0]
         for i, pred in enumerate(preds):
+            print(preds.shape, len(active_tracks), pred.shape, i)
             active_tracks[i].update_pred(pred)
+        for track in self.tracker.tracks:
+            if track not in active_tracks:
+                track.update_pred(torch.tensor([]))
         visualize_preds = self.tracker.extract_preds()
         task.add_action_preds(visualize_preds)
+        print("Preds:", visualize_preds.shape)
+        print("Bboxes:", task.bboxes.shape if task.bboxes is not None else None)
         return task
 
 
