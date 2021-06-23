@@ -83,6 +83,7 @@ class Track:
         self._max_age = max_age
 
         self.preds_history = []
+        self.active_flag = False
 
     def to_tlwh(self):
         """Get current position in bounding box format `(top left x, top left y,
@@ -151,8 +152,10 @@ class Track:
     def update_pred(self, pred=None, budget=5):
         if pred.shape[0] == 0 or pred is None:
             self.preds_history.clear()
+            self.active_flag = False
             return
         self.preds_history.append(pred)
+        self.active_flag = True
         if len(self.preds_history) == budget:
             self.preds_history.pop(0)
 

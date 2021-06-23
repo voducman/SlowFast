@@ -97,8 +97,8 @@ class Tracker:
             pred = t.extract_pred()
             if pred is not None:
                 preds.append(pred)
-            else:
-                preds.append(torch.zeros(num_classes, dtype=torch.float32))
+            if t.activate_flag:
+                preds.append(torch.zeros(400, dtype=torch.float32))
         return torch.stack(preds, dim=0) if len(preds) > 0 else torch.tensor([])
 
     def _match(self, detections):
