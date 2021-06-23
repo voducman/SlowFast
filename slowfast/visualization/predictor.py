@@ -131,12 +131,12 @@ class Predictor:
             preds = preds.cpu()
 
         preds = preds.detach()
-        # task.add_action_preds(preds)
         for i, pred in enumerate(preds):
-            print(preds.shape, len(active_tracks), pred.shape, i)
             active_tracks[i].update_pred(pred)
+            print("Track active:", active_tracks[i].track_id)
         for track in self.tracker.tracks:
             if track not in active_tracks:
+                print("Track not active:", track.track_id)
                 track.update_pred(torch.tensor([]))
         visualize_preds = self.tracker.extract_preds()
         task.add_action_preds(visualize_preds)

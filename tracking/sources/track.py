@@ -148,8 +148,8 @@ class Track:
         if self.state == TrackState.Tentative and self.hits >= self._n_init:
             self.state = TrackState.Confirmed
 
-    def update_pred(self, pred, budget=5):
-        if pred.shape[0] == 0:
+    def update_pred(self, pred=None, budget=5):
+        if pred.shape[0] == 0 or pred is None:
             self.preds_history.clear()
             return
         self.preds_history.append(pred)

@@ -38,7 +38,7 @@ class Tracker:
 
     """
 
-    def __init__(self, metric, max_iou_distance=0.7, max_age=60, n_init=3):
+    def __init__(self, metric, max_iou_distance=0.8, max_age=10, n_init=3):
         self.metric = metric
         self.max_iou_distance = max_iou_distance
         self.max_age = max_age
@@ -98,7 +98,7 @@ class Tracker:
             if pred is not None:
                 preds.append(pred)
             else:
-                preds.append(torch.zeros(400, dtype=torch.float32))
+                preds.append(torch.zeros(num_classes, dtype=torch.float32))
         return torch.stack(preds, dim=0) if len(preds) > 0 else torch.tensor([])
 
     def _match(self, detections):
