@@ -91,13 +91,15 @@ class Tracker:
         self.metric.partial_fit(
             np.asarray(features), np.asarray(targets), active_targets)
 
-    def extract_preds(self):
+    def extract_preds(self, num_classes=400):
         preds = []
         for t in self.tracks:
             pred = t.extract_pred()
             if pred is not None:
                 preds.append(pred)
-        return torch.cat(preds, dim=0) if len(preds) > 0 else torch.tensor([])
+            else:
+                preds.append(torch.zeros(400, dtype=torch.float32))
+        return torch.stack(preds, dim=0) if len(preds) > 0 else torch.tensor([])
 
     def _match(self, detections):
 

@@ -169,8 +169,8 @@ class Track:
             instance, counts = torch.unique(klass_ids, return_counts=True)
             major_klass = instance[torch.argmax(counts)]
             if major_klass == 246 and torch.max(counts) > 1:
-                fake_pred = torch.zeros((1, 400), dtype=torch.float32)
-                fake_pred[0, major_klass] = 1.0
+                fake_pred = torch.zeros(400, dtype=torch.float32)
+                fake_pred[major_klass] = 1.0
                 return fake_pred
 
     def mark_missed(self):
