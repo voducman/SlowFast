@@ -52,7 +52,7 @@ _C.TRAIN.DATASET = "kinetics"
 _C.TRAIN.BATCH_SIZE = 64
 
 # Evaluate model on test data every eval period epochs.
-_C.TRAIN.EVAL_PERIOD = 10
+_C.TRAIN.EVAL_PERIOD = 5
 
 # Save model checkpoint every checkpoint period epochs.
 _C.TRAIN.CHECKPOINT_PERIOD = 10
