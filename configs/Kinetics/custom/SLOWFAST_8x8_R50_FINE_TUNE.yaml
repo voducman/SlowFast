@@ -14,7 +14,6 @@ DATA:
   TRAIN_CROP_SIZE: 224
   TEST_CROP_SIZE: 256
   INPUT_CHANNEL_NUM: [3, 3]
-  PATH_TO_DATA_DIR: ""
   DECODING_BACKEND: "torchvision"	
   PATH_TO_DATA_DIR: "/u01/manvd1/action-recognition/datasets/kinetics/train"
 SLOWFAST:
