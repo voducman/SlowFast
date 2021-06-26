@@ -1,4 +1,4 @@
 message="$1"
 git add .
 git commit -m "$message"
-git push origin kinetics-detection
+git push origin training
