@@ -772,7 +772,7 @@ _C.TENSORBOARD.HISTOGRAM.ENABLE = False
 _C.TENSORBOARD.HISTOGRAM.SUBSET_PATH = ""
 # Visualize top-k most predicted classes on histograms for each
 # chosen true label.
-_C.TENSORBOARD.HISTOGRAM.TOP_K = 10
+_C.TENSORBOARD.HISTOGRAM.TOPK = 10
 # Figure size of the histograms plotted.
 _C.TENSORBOARD.HISTOGRAM.FIGSIZE = [8, 8]
 
