@@ -2,6 +2,7 @@ import os
 from glob import glob
 from slowfast.datasets import decoder as decoder
 from slowfast.datasets import video_container as container
+from tqdm import tqdm
 
 
 VIDEO_DIR = "/u01/manvd1/action-recognition/datasets/kinetics/train"
@@ -11,7 +12,7 @@ load_error_videos = []
 load_error_meta_videos = []
 decode_error_videos = []
 
-for vd_path in video_paths:
+for vd_path in tqdm(video_paths):
     video_container = None
     try:
         video_container = container.get_video_container( vd_path, True, "pyav")
@@ -52,6 +53,20 @@ print("\nNum of video: {} \nLoad error percent: {} \nLoad meta error percent: {}
     decode_error_per,
     valid_per
 ))
+
+log = "Load error videos: \n"
+for v in load_error_videos:
+    log += v + "\n"
+log += "\n\Load meta error videos: \n"
+for v in load_error_meta_videos:
+    log += v + "\n"
+log += "\nDecode error videos: \n"
+for v in decode_error_videos:
+    log += v + "\n"
+
+with open("output/valid_videos.txt", 'w') as f:
+    f.write(log)
+
 
 
 
