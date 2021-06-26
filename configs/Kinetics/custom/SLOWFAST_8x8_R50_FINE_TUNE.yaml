@@ -61,6 +61,20 @@ DATA_LOADER:
   NUM_WORKERS: 4
   PIN_MEMORY: True
   ENABLE_MULTI_THREAD_DECODE: True
+TENSORBOARD:
+  ENABLE: True
+  CLASS_NAMES_PATH: "/u01/manvd1/action-recognition/datasets/kinetics/classids.json"
+  CONFUSION_MATRIX:
+    ENABLE: True
+    SUBSET_PATH: "/u01/manvd1/action-recognition/datasets/kinetics/subset_path.txt"
+                 # Path to txt file contains class names separated by newline characters.
+                 # Only classes in this file will be visualized in the confusion matrix.
+  HISTOGRAM:
+    ENABLE: True
+    TOP_K: 3   # Top-k most frequently predicted classes for each class in the dataset.
+    SUBSET_PATH: "/u01/manvd1/action-recognition/datasets/kinetics/subset_path.txt"
+                 # Path to txt file contains class names separated by newline characters.
+                 # Only classes in this file will be visualized with histograms.
 NUM_GPUS: 4
 NUM_SHARDS: 1
 RNG_SEED: 0
