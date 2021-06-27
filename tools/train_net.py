@@ -65,7 +65,8 @@ def train_epoch(
                     inputs[i] = inputs[i].cuda(non_blocking=True)
             else:
                 inputs = inputs.cuda(non_blocking=True)
-            labels = labels.cuda()
+            print(labels)
+            labels = labels.cuda().long()
             for key, val in meta.items():
                 if isinstance(val, (list,)):
                     for i in range(len(val)):
