@@ -900,24 +900,13 @@ _C.DEMO.FPS = 30
 # Option: {"thres", "top-k"}
 _C.DEMO.VIS_MODE = "thres"
 # Threshold for common class names.
-_C.DEMO.COMMON_CLASS_THRES = 0.7
+_C.DEMO.COMMON_CLASS_THRES = 0.8
 # Theshold for uncommon class names. This will not be
 # used if `_C.DEMO.COMMON_CLASS_NAMES` is empty.
-_C.DEMO.UNCOMMON_CLASS_THRES = 0.9999
+_C.DEMO.UNCOMMON_CLASS_THRES = 0.7
 # This is chosen based on distribution of examples in
 # each classes in AVA dataset.
-_C.DEMO.COMMON_CLASS_NAMES = [
-    "laughing",
-    "writing",
-    "playing keyboard",
-    "reading book",
-    "shaking hands",
-    "drinking",
-    "dining",
-    "playing piano",
-    "playing tennis",
-    "playing volleyball"
-]
+_C.DEMO.COMMON_CLASS_NAMES = []
 # Slow-motion rate for the visualization. The visualized portions of the
 # video will be played `_C.DEMO.SLOWMO` times slower than usual speed.
 _C.DEMO.SLOWMO = 1

@@ -38,7 +38,9 @@ class Tracker:
 
     """
 
-    def __init__(self, metric, max_iou_distance=0.8, max_age=10, n_init=3):
+    def __init__(self, cfg, metric, max_iou_distance=0.8, max_age=10, n_init=3):
+        self.cfg = cfg
+        self.num_classes = cfg.MODEL.NUM_CLASSES
         self.metric = metric
         self.max_iou_distance = max_iou_distance
         self.max_age = max_age
@@ -98,7 +100,7 @@ class Tracker:
             if pred is not None:
                 preds.append(pred)
             elif t.active_flag:
-                preds.append(torch.zeros(400, dtype=torch.float32))
+                preds.append(torch.zeros(self.num_classes, dtype=torch.float32))
         return torch.stack(preds, dim=0) if len(preds) > 0 else torch.tensor([])
 
     def _match(self, detections):
@@ -144,6 +146,5 @@ class Tracker:
     def _initiate_track(self, detection):
         mean, covariance = self.kf.initiate(detection.to_xyah())
         self.tracks.append(Track(
-            mean, covariance, self._next_id, self.n_init, self.max_age,
-            detection.feature))
+            mean, covariance, self._next_id, self.n_init, self.max_age, self.cfg, detection.feature))
         self._next_id += 1

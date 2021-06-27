@@ -60,7 +60,7 @@ class Predictor:
 
         # traking
         metric = NearestNeighborDistanceMetric("cosine", matching_threshold=0.3, budget=10)
-        self.tracker = Tracker(metric)
+        self.tracker = Tracker(cfg, metric)
         self.feature_extractor = FeatureExtractor("tracking/checkpoint/mars-small128.pb")
 
     def __call__(self, task):

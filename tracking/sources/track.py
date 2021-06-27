@@ -65,8 +65,7 @@ class Track:
 
     """
 
-    def __init__(self, mean, covariance, track_id, n_init, max_age,
-                 feature=None):
+    def __init__(self, mean, covariance, track_id, n_init, max_age, cfg, feature=None):
         self.mean = mean
         self.covariance = covariance
         self.track_id = track_id
@@ -84,6 +83,8 @@ class Track:
 
         self.preds_history = []
         self.active_flag = False
+        self.num_classes = cfg.MODEL.NUM_CLASSES
+        self.thresh = cfg.DEMO.COMMON_CLASS_THRES
 
     def to_tlwh(self):
         """Get current position in bounding box format `(top left x, top left y,
@@ -156,32 +157,35 @@ class Track:
             return
         self.preds_history.append(pred)
         self.active_flag = True
-        if len(self.preds_history) == budget:
+        if len(self.preds_history) > budget:
             self.preds_history.pop(0)
 
     def extract_pred(self):
         if len(self.preds_history) == 0:
             return None
         preds = torch.stack(self.preds_history)
-        klass_ids = torch.argmax(preds, dim=1)
-        if klass_ids.shape[0] == 1:
-            if klass_ids[0] in [180, 288]:  # sharking hands
-                return self.preds_history[0]
-            return None
+        # laughing, sharking hands & drinking
+        # current pred is one in three classes and confidence greater than threshold (ex: 0.8)
+        if torch.argmax(preds, dim=1)[-1] in [0, 4, 5] and torch.max(preds, dim=1)[0][-1] > self.thresh:
+            return self.preds_history[-1]
 
-        if klass_ids.shape[0] >= 4:
-            instance, counts = torch.unique(klass_ids, return_counts=True)
+        # only accept preds with conf greater than pre-defined threshold
+        max_values, indexes = torch.max(preds, dim=1)
+        class_ids = indexes[max_values > self.thresh]
+
+        if len(class_ids) >= 3:
+            instance, counts = torch.unique(class_ids, return_counts=True)
             major_klass = instance[torch.argmax(counts)]
-            if major_klass in [91, 100, 241, 246, 251] and torch.max(counts) > 1:
-                fake_pred = torch.zeros(400, dtype=torch.float32)
+
+            # playing piano/tennis/volleyball
+            if major_klass in [7, 8, 9] and torch.max(counts) >= 3:
+                fake_pred = torch.zeros(self.num_classes, dtype=torch.float32)
                 fake_pred[major_klass] = 1.0
                 return fake_pred
 
-        if klass_ids.shape[0] >= 3:
-            instance, counts = torch.unique(klass_ids, return_counts=True)
-            major_klass = instance[torch.argmax(counts)]
-            if major_klass in [236, 264, 396] and torch.max(counts) > 1:
-                fake_pred = torch.zeros(400, dtype=torch.float32)
+            # writing, playing keyboard, reading book & dining
+            if major_klass in [1, 2, 3, 6] and torch.max(counts) >= 2:
+                fake_pred = torch.zeros(self.num_classes, dtype=torch.float32)
                 fake_pred[major_klass] = 1.0
                 return fake_pred
 
