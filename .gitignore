@@ -4,3 +4,5 @@ output
 */__pycache__
 */*/__pycache__
 checkpoints
+*.log
+checkpoints/*

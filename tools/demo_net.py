@@ -115,8 +115,8 @@ def demo(cfg):
         cfg.OUTPUT_DIR = os.path.join(conf_output_dir, sub_dir)
         cfg.DEMO.OUTPUT_FILE = os.path.join(cfg.OUTPUT_DIR, video_name)
 
-        if not os.path.exists(cfg.OUTPUT_DIR):
-            os.makedirs(cfg.OUTPUT_DIR)
+        os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
+
         # AVA format-specific visualization with precomputed boxes.
         if cfg.DETECTION.ENABLE and cfg.DEMO.PREDS_BOXES != "":
             precomputed_box_vis = AVAVisualizerWithPrecomputedBox(cfg)
