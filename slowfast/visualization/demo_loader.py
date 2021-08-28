@@ -7,7 +7,6 @@ import queue
 import threading
 import time
 import cv2
-import numpy as np
 
 import slowfast.utils.logging as logging
 from slowfast.visualization.utils import TaskInfo

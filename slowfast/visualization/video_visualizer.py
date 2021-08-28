@@ -410,7 +410,6 @@ class VideoVisualizer:
         text_alpha=0.7,
         ground_truth=False,
     ):
-
         """
         Draw labels and bouding boxes for one image. By default, predicted labels are drawn in
         the top left corner of the image or corresponding bounding boxes. For ground truth labels
@@ -431,7 +430,7 @@ class VideoVisualizer:
             ground_truth (bool): whether the prodived bounding boxes are ground-truth.
         """
         if isinstance(preds, torch.Tensor):
-            if preds.ndim == 1 and preds.shape[0] > 0:
+            if preds.ndim == 1:
                 preds = preds.unsqueeze(0)
             n_instances = preds.shape[0]
         elif isinstance(preds, list):
@@ -439,10 +438,6 @@ class VideoVisualizer:
         else:
             logger.error("Unsupported type of prediction input.")
             return
-
-        frame_visualizer = ImgVisualizer(frame, meta=None)
-        if preds.shape[0] == 0:
-            return frame_visualizer.output.get_image()
 
         if ground_truth:
             top_scores, top_classes = [None] * n_instances, preds
@@ -469,7 +464,7 @@ class VideoVisualizer:
                     ground_truth=ground_truth,
                 )
             )
-
+        frame_visualizer = ImgVisualizer(frame, meta=None)
         font_size = min(
             max(np.sqrt(frame.shape[0] * frame.shape[1]) // 35, 13), 13
         )

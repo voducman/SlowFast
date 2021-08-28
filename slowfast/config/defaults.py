@@ -802,7 +802,7 @@ _C.TENSORBOARD.MODEL_VIS.INPUT_VIDEO = False
 # along the batch dimension in `layer1`, we take arr[[1, 2], [1, 2]]
 _C.TENSORBOARD.MODEL_VIS.LAYER_LIST = []
 # Top-k predictions to plot on videos
-_C.TENSORBOARD.MODEL_VIS.TOPK_PREDS = 1
+_C.TENSORBOARD.MODEL_VIS.TOPK_PREDS = 3
 # Colormap to for text boxes and bounding boxes colors
 _C.TENSORBOARD.MODEL_VIS.COLORMAP = "Pastel2"
 # Config for visualization video inputs with Grad-CAM.
