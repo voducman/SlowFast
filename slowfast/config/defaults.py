@@ -867,7 +867,7 @@ _C.DEMO.YOLOV5_SIZE = 's'
 # Increase this number for more frequent action predictions.
 # The number of overlapping frames cannot be larger than
 # half of the sequence length `cfg.DATA.NUM_FRAMES * cfg.DATA.SAMPLING_RATE`
-_C.DEMO.BUFFER_SIZE = 1
+_C.DEMO.BUFFER_SIZE = 16
 # If specified, the visualized outputs will be written this a video file of
 # this path. Otherwise, the visualized outputs will be displayed in a window.
 _C.DEMO.OUTPUT_FILE = ""
