@@ -898,7 +898,7 @@ _C.DEMO.STARTING_SECOND = 900
 _C.DEMO.FPS = 30
 # Visualize with top-k predictions or predictions above certain threshold(s).
 # Option: {"thres", "top-k"}
-_C.DEMO.VIS_MODE = "thres"
+_C.DEMO.VIS_MODE = "top-k"
 # Threshold for common class names.
 _C.DEMO.COMMON_CLASS_THRES = 0.3
 # Theshold for uncommon class names. This will not be
