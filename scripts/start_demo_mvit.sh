@@ -1,7 +1,7 @@
 export CUDA_VISIBLE_DEVICES=0
 conda activate action-recognition
-test -f "logs/slowfast-demo.log" && rm logs/slowfast-demo.log
-screen -L -Logfile logs/slowfast-demo.log -S slowfast-demo -m bash -c \
+test -f "logs/mvit-demo.log" && rm logs/mvit-demo.log
+screen -L -Logfile logs/mvit-demo.log -S mvit-demo -m bash -c \
 "python tools/run_net.py \
 --cfg demo/Kinetics/MVIT_B_16x4_CONV.yaml \
 TEST.CHECKPOINT_FILE_PATH checkpoints/K400_MVIT_B_16x4_CONV.pyth \
