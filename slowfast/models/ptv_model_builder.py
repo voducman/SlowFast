@@ -6,11 +6,16 @@
 
 from functools import partial
 import torch.nn as nn
+from detectron2.layers import ROIAlign
 
 from slowfast.models.batchnorm_helper import get_norm
 from slowfast.models.video_model_builder import _POOL1, _TEMPORAL_KERNEL_BASIS
 
 from pytorchvideo.models.csn import create_csn
+from pytorchvideo.models.head import (
+    create_res_basic_head,
+    create_res_roi_pooling_head,
+)
 from pytorchvideo.models.r2plus1d import (
     create_2plus1d_bottleneck_block,
     create_r2plus1d,
@@ -22,8 +27,8 @@ from pytorchvideo.models.x3d import (
     create_x3d,
     create_x3d_bottleneck_block,
 )
-from pytorchvideo.models.head import create_res_basic_head, create_res_roi_pooling_head
-from detectron2.layers import ROIAlign
+from pytorchvideo.models.vision_transformers import create_multiscale_vision_transformers
+
 from .build import MODEL_REGISTRY
 
 
@@ -77,7 +82,7 @@ class PTVResNet(nn.Module):
             "i3d",
         ], f"Unsupported MODEL.ARCH type {cfg.MODEL.ARCH} for PTVResNet"
 
-        self.detection_mode =  cfg.DETECTION.ENABLE
+        self.detection_mode = cfg.DETECTION.ENABLE
         self._construct_network(cfg)
 
     def _construct_network(self, cfg):
@@ -122,19 +127,21 @@ class PTVResNet(nn.Module):
         # Head from config
         if cfg.DETECTION.ENABLE:
             self.detection_head = create_res_roi_pooling_head(
-                in_features=cfg.RESNET.WIDTH_PER_GROUP * 2**(4+1),
+                in_features=cfg.RESNET.WIDTH_PER_GROUP * 2 ** (4 + 1),
                 out_features=cfg.MODEL.NUM_CLASSES,
                 pool=nn.AvgPool3d,
-                output_size=(1,1,1),
-                pool_kernel_size= (
-                    cfg.DATA.NUM_FRAMES // pool_size[0][0], 1, 1,
+                output_size=(1, 1, 1),
+                pool_kernel_size=(
+                    cfg.DATA.NUM_FRAMES // pool_size[0][0],
+                    1,
+                    1,
                 ),
                 dropout_rate=cfg.MODEL.DROPOUT_RATE,
                 activation=None,
                 output_with_global_average=False,
                 pool_spatial=nn.MaxPool2d,
                 resolution=[cfg.DETECTION.ROI_XFORM_RESOLUTION] * 2,
-                spatial_scale=1.0/float(cfg.DETECTION.SPATIAL_SCALE_FACTOR),
+                spatial_scale=1.0 / float(cfg.DETECTION.SPATIAL_SCALE_FACTOR),
                 sampling_ratio=0,
                 roi=ROIAlign,
             )
@@ -232,7 +239,7 @@ class PTVSlowFast(nn.Module):
             cfg.RESNET.TRANS_FUNC == "bottleneck_transform"
         ), f"Unsupported TRANS_FUNC type {cfg.RESNET.TRANS_FUNC} for PTVSlowFast"
 
-        self.detection_mode =  cfg.DETECTION.ENABLE
+        self.detection_mode = cfg.DETECTION.ENABLE
         self._construct_network(cfg)
 
     def _construct_network(self, cfg):
@@ -271,23 +278,21 @@ class PTVSlowFast(nn.Module):
 
         # Head from config
         # Number of stages = 4
-        stage_dim_in = cfg.RESNET.WIDTH_PER_GROUP * 2**(4+1)
-        head_in_features = stage_dim_in
-        for reduction_ratio in cfg.SLOWFAST.BETA_INV:
-            head_in_features = head_in_features + stage_dim_in // reduction_ratio
+        stage_dim_in = cfg.RESNET.WIDTH_PER_GROUP * 2 ** (4 + 1)
+        head_in_features = stage_dim_in + stage_dim_in // cfg.SLOWFAST.BETA_INV
 
         if cfg.DETECTION.ENABLE:
             self.detection_head = create_res_roi_pooling_head(
                 in_features=head_in_features,
                 out_features=cfg.MODEL.NUM_CLASSES,
                 pool=None,
-                output_size=(1,1,1),
+                output_size=(1, 1, 1),
                 dropout_rate=cfg.MODEL.DROPOUT_RATE,
                 activation=None,
                 output_with_global_average=False,
                 pool_spatial=nn.MaxPool2d,
                 resolution=[cfg.DETECTION.ROI_XFORM_RESOLUTION] * 2,
-                spatial_scale=1.0/float(cfg.DETECTION.SPATIAL_SCALE_FACTOR),
+                spatial_scale=1.0 / float(cfg.DETECTION.SPATIAL_SCALE_FACTOR),
                 sampling_ratio=0,
                 roi=ROIAlign,
             )
@@ -690,4 +695,81 @@ class PTVR2plus1D(nn.Module):
             x = x.mean([2, 3, 4])
 
         x = x.view(x.shape[0], -1)
+        return x
+
+
+@MODEL_REGISTRY.register()
+class PTVMViT(nn.Module):
+    """
+    MViT models using PyTorchVideo model builder.
+    """
+
+    def __init__(self, cfg):
+        """
+        The `__init__` method of any subclass should also contain these
+            arguments.
+
+        Args:
+            cfg (CfgNode): model building configs, details are in the
+                comments of the config file.
+        """
+        super(PTVMViT, self).__init__()
+
+        assert (
+            cfg.DETECTION.ENABLE is False
+        ), "Detection model is not supported for PTVMViT yet."
+
+        self._construct_network(cfg)
+
+    def _construct_network(self, cfg):
+        """
+        Builds a MViT model.
+
+        Args:
+            cfg (CfgNode): model building configs, details are in the
+                comments of the config file.
+        """
+        self.model = create_multiscale_vision_transformers(
+            spatial_size=cfg.DATA.TRAIN_CROP_SIZE,
+            temporal_size=cfg.DATA.NUM_FRAMES,
+            cls_embed_on=cfg.MVIT.CLS_EMBED_ON,
+            sep_pos_embed=cfg.MVIT.SEP_POS_EMBED,
+            depth=cfg.MVIT.DEPTH,
+            norm=cfg.MVIT.NORM,
+            # Patch embed config.
+            input_channels = cfg.DATA.INPUT_CHANNEL_NUM[0],
+            patch_embed_dim = cfg.MVIT.EMBED_DIM,
+            conv_patch_embed_kernel = cfg.MVIT.PATCH_KERNEL,
+            conv_patch_embed_stride = cfg.MVIT.PATCH_STRIDE,
+            conv_patch_embed_padding = cfg.MVIT.PATCH_PADDING,
+            enable_patch_embed_norm = cfg.MVIT.NORM_STEM,
+            use_2d_patch=cfg.MVIT.PATCH_2D,
+            # Attention block config.
+            num_heads = cfg.MVIT.NUM_HEADS,
+            mlp_ratio = cfg.MVIT.MLP_RATIO,
+            qkv_bias = cfg.MVIT.QKV_BIAS,
+            dropout_rate_block = cfg.MVIT.DROPOUT_RATE,
+            droppath_rate_block = cfg.MVIT.DROPPATH_RATE,
+            pooling_mode = cfg.MVIT.MODE,
+            pool_first = cfg.MVIT.POOL_FIRST,
+            embed_dim_mul = cfg.MVIT.DIM_MUL,
+            atten_head_mul = cfg.MVIT.HEAD_MUL,
+            pool_q_stride_size = cfg.MVIT.POOL_Q_STRIDE,
+            pool_kv_stride_size = cfg.MVIT.POOL_KV_STRIDE,
+            pool_kv_stride_adaptive = cfg.MVIT.POOL_KV_STRIDE_ADAPTIVE,
+            pool_kvq_kernel = cfg.MVIT.POOL_KVQ_KERNEL,
+            # Head config.
+            head_dropout_rate = cfg.MODEL.DROPOUT_RATE,
+            head_num_classes = cfg.MODEL.NUM_CLASSES,
+        )
+
+        self.post_act = get_head_act(cfg.MODEL.HEAD_ACT)
+
+    def forward(self, x, bboxes=None):
+        x = x[0]
+        x = self.model(x)
+
+        if not self.training:
+            x = self.post_act(x)
+
         return x

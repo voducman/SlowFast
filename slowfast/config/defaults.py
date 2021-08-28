@@ -75,6 +75,8 @@ _C.TRAIN.CHECKPOINT_EPOCH_RESET = False
 # If set, clear all layer names according to the pattern provided.
 _C.TRAIN.CHECKPOINT_CLEAR_NAME_PATTERN = ()  # ("backbone.",)
 
+# If True, use FP16 for activations
+_C.TRAIN.MIXED_PRECISION = False
 
 # ---------------------------------------------------------------------------- #
 # Augmentation options.
@@ -300,6 +302,9 @@ _C.MVIT = CfgNode()
 # Options include `conv`, `max`.
 _C.MVIT.MODE = "conv"
 
+# If True, perform pool before projection in attention.
+_C.MVIT.POOL_FIRST = False
+
 # If True, use cls embed in the network, otherwise don't use cls_embed in transformer.
 _C.MVIT.CLS_EMBED_ON = True
 
@@ -336,25 +341,29 @@ _C.MVIT.DEPTH = 16
 # Normalization layer for the transformer. Only layernorm is supported now.
 _C.MVIT.NORM = "layernorm"
 
-# Dimension multiplication. If 2.0 is used, then the next block will increase the
-# dimension by 2 times. Format: [depth_i: mul_dim_ratio]
+# Dimension multiplication at layer i. If 2.0 is used, then the next block will increase
+# the dimension by 2 times. Format: [depth_i: mul_dim_ratio]
 _C.MVIT.DIM_MUL = []
 
-# Head number multiplication. If 2.0 is used, then the next block will increase the
-# number of heads by 2 times. Format: [depth_i: head_mul_ratio]
+# Head number multiplication at layer i. If 2.0 is used, then the next block will
+# increase the number of heads by 2 times. Format: [depth_i: head_mul_ratio]
 _C.MVIT.HEAD_MUL = []
 
-# Kernel size for the Pool KV. Format: [[kernel_t_i, kernel_h_i, kernel_w_i], ...,]
-_C.MVIT.POOL_KV_KERNEL = [[]]
+# Stride size for the Pool KV at layer i.
+# Format: [[i, stride_t_i, stride_h_i, stride_w_i], ...,]
+_C.MVIT.POOL_KV_STRIDE = None
 
-# Kernel size for the Pool Q. Format: [[kernel_t_i, kernel_h_i, kernel_w_i], ...,]
-_C.MVIT.POOL_Q_KERNEL = [[]]
+# Initial stride size for KV at layer 1. The stride size will be further reduced with
+# the raio of MVIT.DIM_MUL. If will overwrite MVIT.POOL_KV_STRIDE if not None.
+_C.MVIT.POOL_KV_STRIDE_ADAPTIVE = None
 
-# Stride size for the Pool KV. Format: [[stride_t_i, stride_h_i, stride_w_i], ...,]
-_C.MVIT.POOL_KV_STRIDE = [[]]
+# Stride size for the Pool Q at layer i.
+# Format: [[i, stride_t_i, stride_h_i, stride_w_i], ...,]
+_C.MVIT.POOL_Q_STRIDE = []
 
-# Stride size for the Pool Q. Format: [[stride_t_i, stride_h_i, stride_w_i], ...,]
-_C.MVIT.POOL_Q_STRIDE = [[]]
+# If not None, overwrite the KV_KERNEL and Q_KERNEL size with POOL_KVQ_CONV_SIZ.
+# Otherwise the kernel_size is [s + 1 if s > 1 else s for s in stride_size].
+_C.MVIT.POOL_KVQ_KERNEL = None
 
 # If True, perform no decay on positional embedding and cls embedding.
 _C.MVIT.ZERO_DECAY_POS_CLS = True
@@ -544,6 +553,11 @@ _C.SOLVER.COSINE_AFTER_WARMUP = False
 # If True, perform no weight decay on parameter with one dimension (bias term, etc).
 _C.SOLVER.ZERO_WD_1D_PARAM = False
 
+# Clip gradient at this value before optimizer update
+_C.SOLVER.CLIP_GRAD_VAL = None
+
+# Clip gradient at this norm before optimizer update
+_C.SOLVER.CLIP_GRAD_L2NORM = None
 # ---------------------------------------------------------------------------- #
 # Misc options
 # ---------------------------------------------------------------------------- #
@@ -928,11 +942,11 @@ def assert_and_infer_cfg(cfg):
         assert cfg.BN.NUM_BATCHES_PRECISE >= 0
     # TRAIN assertions.
     assert cfg.TRAIN.CHECKPOINT_TYPE in ["pytorch", "caffe2"]
-    assert cfg.TRAIN.BATCH_SIZE % cfg.NUM_GPUS == 0
+    assert cfg.NUM_GPUS == 0 or cfg.TRAIN.BATCH_SIZE % cfg.NUM_GPUS == 0
 
     # TEST assertions.
     assert cfg.TEST.CHECKPOINT_TYPE in ["pytorch", "caffe2"]
-    assert cfg.TEST.BATCH_SIZE % cfg.NUM_GPUS == 0
+    assert cfg.NUM_GPUS == 0 or cfg.TEST.BATCH_SIZE % cfg.NUM_GPUS == 0
 
     # RESNET assertions.
     assert cfg.RESNET.NUM_GROUPS > 0
