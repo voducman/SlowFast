@@ -1,3 +1,4 @@
+export CUDA_VISIBLE_DEVICES=0
 conda activate action-recognition
 export PYTHONPATH=/u01/manvd1/action-recognition/SlowFast/slowfast:$PYTHONPATH
 

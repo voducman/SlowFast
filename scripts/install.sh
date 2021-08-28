@@ -1,6 +1,10 @@
 conda create -n action-recognition python==3.7.9 -y
 conda activate action-recognition
 
+# cuda vs cudnn
+conda install -c anaconda cudatoolkit=10.2
+conda install -c nvidia cudnn=8.0.4
+
 pip install torch==1.6.0 torchvision==0.7.0
 pip install 'git+https://github.com/facebookresearch/fvcore'
 pip install simplejson
@@ -13,10 +17,6 @@ pip install tensorboard
 pip install moviepy
 pip install pytorchvideo
 pip install sklearn
-
-# cuda vs cudnn
-conda install -c anaconda cudatoolkit=11.0
-conda install -c nvidia cudnn=8.0.4
 
 pip install tensorflow-gpu==2.4.0
 
