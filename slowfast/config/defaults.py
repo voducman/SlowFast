@@ -900,10 +900,10 @@ _C.DEMO.FPS = 30
 # Option: {"thres", "top-k"}
 _C.DEMO.VIS_MODE = "thres"
 # Threshold for common class names.
-_C.DEMO.COMMON_CLASS_THRES = 0.8
+_C.DEMO.COMMON_CLASS_THRES = 0.3
 # Theshold for uncommon class names. This will not be
 # used if `_C.DEMO.COMMON_CLASS_NAMES` is empty.
-_C.DEMO.UNCOMMON_CLASS_THRES = 0.7
+_C.DEMO.UNCOMMON_CLASS_THRES = 0.3
 # This is chosen based on distribution of examples in
 # each classes in AVA dataset.
 _C.DEMO.COMMON_CLASS_NAMES = []
