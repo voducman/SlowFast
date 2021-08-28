@@ -1,5 +1,6 @@
 export CUDA_VISIBLE_DEVICES=0
 conda activate action-recognition
+export PYTHONPATH=/u01/khienpv1/manvd1/action-recognition/SlowFast/slowfast:$PYTHONPATH
 test -f "logs/mvit-demo.log" && rm logs/mvit-demo.log
 screen -L -Logfile logs/mvit-demo.log -S mvit-demo -m bash -c \
 "python tools/run_net.py \
