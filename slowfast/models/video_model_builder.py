@@ -980,7 +980,7 @@ class MViT(nn.Module):
         else:
             return {}
 
-    def forward(self, x):
+    def forward(self, x, bboxes=None):
         x = x[0]
         x = self.patch_embed(x)
 
