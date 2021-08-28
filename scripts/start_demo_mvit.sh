@@ -7,6 +7,7 @@ screen -L -Logfile logs/mvit-demo.log -S mvit-demo -m bash -c \
 --cfg demo/Kinetics/MVIT_B_16x4_CONV.yaml \
 TEST.CHECKPOINT_FILE_PATH checkpoints/K400_MVIT_B_16x4_CONV.pyth \
 TEST.CHECKPOINT_TYPE caffe2 \
+DEMO.VIS_MODE top-k \
 DEMO.ENABLE True \
 DEMO.LABEL_FILE_PATH /u01/khienpv1/manvd1/action-recognition/data/kinetics-400/class_id_mapping.json \
 DEMO.INPUT_VIDEO /u01/khienpv1/manvd1/action-recognition/demo \
