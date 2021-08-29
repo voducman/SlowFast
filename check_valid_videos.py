@@ -67,7 +67,7 @@ if __name__ == "__main__":
     proc_bar = tqdm(total=video_count)
     valid_count = 0
     error_count = 0
-    while processed_video_count < video_paths:
+    while processed_video_count < video_count:
         waited_count = status_queue.qsize()
         for i in range(waited_count):
             status = status_queue.get()
