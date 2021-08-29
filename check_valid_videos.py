@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 
 VIDEO_DIR = "/u01/server_100_backup/ComputerVision/ActionRecognition/datasets/kinetics/400/extracted/val"
-NUM_PROCESS = 10
+NUM_PROCESS = 5
 video_paths = glob(os.path.join(VIDEO_DIR, "*.mp4"))
 video_per_proc = int(len(video_paths)/NUM_PROCESS)
 video_count = len(video_paths)
@@ -79,7 +79,7 @@ if __name__ == "__main__":
             proc_bar.set_description("Valid: {} | Error: {}".format(valid_count, error_count))
             proc_bar.update()
             processed_video_count += 1
-            
+
         time.sleep(0.1)
 
     error_percent = round(error_queue.qsize()/len(video_paths)*100, 2)
