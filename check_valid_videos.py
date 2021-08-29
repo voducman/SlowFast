@@ -5,7 +5,7 @@ from slowfast.datasets import video_container as container
 from tqdm import tqdm
 
 
-VIDEO_DIR = "/u01/manvd1/action-recognition/datasets/kinetics/train"
+VIDEO_DIR = "/u01/server_100_backup/ComputerVision/ActionRecognition/datasets/kinetics/400/extracted/val"
 video_paths = glob(os.path.join(VIDEO_DIR, "*.mp4"))
 valid_videos = []
 load_error_videos = []
