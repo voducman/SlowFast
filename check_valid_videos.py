@@ -11,8 +11,7 @@ VIDEO_DIR = "/u01/server_100_backup/ComputerVision/ActionRecognition/datasets/ki
 NUM_PROCESS = 10
 video_paths = glob(os.path.join(VIDEO_DIR, "*.mp4"))
 video_per_proc = int(len(video_paths)/NUM_PROCESS)
-error_queue = mp.Queue()
-status_queue = mp.Queue()
+video_count = len(video_paths)
 
 
 def check_videos(num_proc, vpaths, error_q, status_q):
@@ -53,18 +52,33 @@ def check_videos(num_proc, vpaths, error_q, status_q):
 
 if __name__ == "__main__":
     processes = []
+    error_queue = mp.Queue()
+    status_queue = mp.Queue()
     for i in range(NUM_PROCESS):
         if i < NUM_PROCESS - 1:
             sub_paths = video_paths[i*video_per_proc:(i+1)*video_per_proc]
         else:
             sub_paths = video_paths[i*video_per_proc:]
-        task = mp.Process(target=check_videos, args=(i, sub_paths, error_queue))
-        task.run()
+        task = mp.Process(target=check_videos, args=(i, sub_paths, error_queue, status_queue))
+        task.start()
         processes.append(task)
 
-    for t in processes:
-        t.join()
+    processed_video_count = 0
+    proc_bar = tqdm(total=video_count)
+    valid_count = 0
+    error_count = 0
+    while processed_video_count < video_paths:
+        waited_count = status_queue.qsize()
+        for i in range(waited_count):
+            status = status_queue.get()
+            if status['status']:
+                valid_count += 1
+            else:
+                error_count += 1
 
+            proc_bar.set_description("Valid: {} | Error: {}".format(valid_count, error_count))
+            proc_bar.update()
+            processed_video_count += 1
 
     error_percent = round(error_queue.qsize()/len(video_paths)*100, 2)
     valid_percent = 100 - error_percent
