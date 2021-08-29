@@ -1,4 +1,6 @@
 import os
+import multiprocessing as mp
+import time
 from glob import glob
 from slowfast.datasets import decoder as decoder
 from slowfast.datasets import video_container as container
@@ -6,25 +8,31 @@ from tqdm import tqdm
 
 
 VIDEO_DIR = "/u01/server_100_backup/ComputerVision/ActionRecognition/datasets/kinetics/400/extracted/val"
+NUM_PROCESS = 10
 video_paths = glob(os.path.join(VIDEO_DIR, "*.mp4"))
-valid_videos = []
-load_error_videos = []
-load_error_meta_videos = []
-decode_error_videos = []
+video_per_proc = int(len(video_paths)/NUM_PROCESS)
+error_queue = mp.Queue()
+status_queue = mp.Queue()
 
-for vd_path in tqdm(video_paths):
-    video_container = None
-    try:
-        video_container = container.get_video_container( vd_path, True, "pyav")
-    except Exception as e:
-        load_error_videos.append(vd_path)
-        continue
 
-    if video_container is None:
-        load_error_meta_videos.append(vd_path)
-        continue
+def check_videos(num_proc, vpaths, error_q, status_q):
+    def collect_error_video(v_path):
+        error_q.put(v_path)
+        status_q.put({'num_process': num_proc, 'status': False})
 
-    frames = decoder.decode(
+    for path in vpaths:
+        video_container = None
+        try:
+            video_container = container.get_video_container(path, True, "pyav")
+        except Exception as e:
+            collect_error_video(path)
+            continue
+
+        if video_container is None:
+            collect_error_video(path)
+            continue
+
+        frames = decoder.decode(
                 video_container,
                 2,
                 32,
@@ -36,36 +44,44 @@ for vd_path in tqdm(video_paths):
                 max_spatial_scale=256,
                 use_offset=False,
             )
+        if frames is None:
+            collect_error_video(path)
+            continue
 
-    if frames is None:
-        decode_error_videos.append(vd_path)
-        continue
-    valid_videos.append(vd_path)
+        status_q.put({'num_process': num_proc, 'status': True})
 
-load_error_per = len(load_error_videos)/len(video_paths)*100
-load_meta_error_per = len(load_error_meta_videos)/len(video_paths)*100
-decode_error_per = len(decode_error_videos)/len(video_paths)*100
-valid_per = len(valid_videos)/len(video_paths)*100
-print("\nNum of video: {} \nLoad error percent: {} \nLoad meta error percent: {}  \nDecode error percent: {}  \nvalid video: {}".format(
-    len(video_paths),
-    load_error_per,
-    load_meta_error_per,
-    decode_error_per,
-    valid_per
-))
 
-log = "Load error videos: \n"
-for v in load_error_videos:
-    log += v + "\n"
-log += "\n\Load meta error videos: \n"
-for v in load_error_meta_videos:
-    log += v + "\n"
-log += "\nDecode error videos: \n"
-for v in decode_error_videos:
-    log += v + "\n"
+if __name__ == "__main__":
+    processes = []
+    for i in range(NUM_PROCESS):
+        if i < NUM_PROCESS - 1:
+            sub_paths = video_paths[i*video_per_proc:(i+1)*video_per_proc]
+        else:
+            sub_paths = video_paths[i*video_per_proc:]
+        task = mp.Process(target=check_videos, args=(i, sub_paths, error_queue))
+        task.run()
+        processes.append(task)
 
-with open("output/valid_videos.txt", 'w') as f:
-    f.write(log)
+    for t in processes:
+        t.join()
+
+
+    error_percent = round(error_queue.qsize()/len(video_paths)*100, 2)
+    valid_percent = 100 - error_percent
+
+    print("\nNum of video: {} \nError: {}  \nvalid video: {}".format(
+        len(video_paths),
+        error_percent,
+        valid_percent
+    ))
+
+    log = "Error videos: \n"
+    for i in range(error_queue.qsize()):
+        vpath = error_queue.get()
+        log += vpath + "\n"
+
+    with open("output/invalid_videos.txt", 'w') as f:
+        f.write(log)
 
 
 
