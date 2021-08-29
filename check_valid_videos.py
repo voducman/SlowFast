@@ -79,6 +79,8 @@ if __name__ == "__main__":
             proc_bar.set_description("Valid: {} | Error: {}".format(valid_count, error_count))
             proc_bar.update()
             processed_video_count += 1
+            
+        time.sleep(0.1)
 
     error_percent = round(error_queue.qsize()/len(video_paths)*100, 2)
     valid_percent = 100 - error_percent
