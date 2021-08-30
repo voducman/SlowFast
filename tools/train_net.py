@@ -202,6 +202,8 @@ def eval_epoch(val_loader, model, val_meter, cur_epoch, cfg, writer=None):
     # Evaluation mode enabled. The running stats would not be updated.
     model.eval()
     val_meter.iter_tic()
+    val_step_count = len(val_loader)
+    running_top1_err = running_top5_error = 0
 
     for cur_iter, (inputs, labels, _, meta) in enumerate(val_loader):
         if cfg.NUM_GPUS:
@@ -271,9 +273,12 @@ def eval_epoch(val_loader, model, val_meter, cur_epoch, cfg, writer=None):
                     ),  # If running  on CPU (cfg.NUM_GPUS == 1), use 1 to represent 1 CPU.
                 )
                 # write to tensorboard format if available.
+                running_top1_err += top1_err
+                running_top5_error += top5_err
                 if writer is not None:
                     writer.add_scalars(
-                        {"Val/Top1_err": top1_err, "Val/Top5_err": top5_err},
+                        {"Val/Top1_err": running_top1_err/(cur_iter+1), 
+                         "Val/Top5_err": running_top5_error/(cur_iter+1)},
                         global_step=len(val_loader) * cur_epoch + cur_iter,
                     )
 
