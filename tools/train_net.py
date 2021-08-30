@@ -277,7 +277,7 @@ def eval_epoch(val_loader, model, val_meter, cur_epoch, cfg, writer=None):
                 running_top5_error += top5_err
                 if writer is not None:
                     writer.add_scalars(
-                        {"Val/Top1_err": running_top1_err/(cur_iter+1), 
+                        {"Val/Top1_err": running_top1_err/(cur_iter+1),
                          "Val/Top5_err": running_top5_error/(cur_iter+1)},
                         global_step=len(val_loader) * cur_epoch + cur_iter,
                     )
