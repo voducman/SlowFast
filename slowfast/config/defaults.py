@@ -906,7 +906,7 @@ _C.DEMO.COMMON_CLASS_THRES = 0.7
 _C.DEMO.UNCOMMON_CLASS_THRES = 0.3
 # This is chosen based on distribution of examples in
 # each classes in AVA dataset.
-_C.DEMO.COMMON_CLASS_NAMES = []
+_C.DEMO.COMMON_CLASS_NAMES = None
 # Slow-motion rate for the visualization. The visualized portions of the
 # video will be played `_C.DEMO.SLOWMO` times slower than usual speed.
 _C.DEMO.SLOWMO = 1
