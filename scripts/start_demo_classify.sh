@@ -11,7 +11,7 @@ DEMO.ENABLE True \
 DEMO.LABEL_FILE_PATH /u01/khienpv1/manvd1/action-recognition/data/kinetics-400/class_id_mapping.json \
 DEMO.INPUT_VIDEO /u01/khienpv1/manvd1/action-recognition/demo \
 DEMO.VIS_MODE thres \
-DEMO.COMMON_CLASS_THRES 0.7 \
+DEMO.COMMON_CLASS_THRES 0.5 \
 OUTPUT_DIR ../demo/output/thresh && \
  \
 python tools/run_net.py \
