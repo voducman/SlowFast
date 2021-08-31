@@ -877,7 +877,7 @@ _C.DEMO.OUTPUT_FPS = -1
 # Input format from demo video reader ("RGB" or "BGR").
 _C.DEMO.INPUT_FORMAT = "BGR"
 # Draw visualization frames in [keyframe_idx - CLIP_VIS_SIZE, keyframe_idx + CLIP_VIS_SIZE] inclusively.
-_C.DEMO.CLIP_VIS_SIZE = 20
+_C.DEMO.CLIP_VIS_SIZE = 25
 # Number of processes to run video visualizer.
 _C.DEMO.NUM_VIS_INSTANCES = 2
 
@@ -898,7 +898,7 @@ _C.DEMO.STARTING_SECOND = 900
 _C.DEMO.FPS = 30
 # Visualize with top-k predictions or predictions above certain threshold(s).
 # Option: {"thres", "top-k"}
-_C.DEMO.VIS_MODE = "thres"
+_C.DEMO.VIS_MODE = "top-k"
 # Threshold for common class names.
 _C.DEMO.COMMON_CLASS_THRES = 0.7
 # Theshold for uncommon class names. This will not be
