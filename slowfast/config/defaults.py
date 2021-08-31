@@ -900,7 +900,7 @@ _C.DEMO.FPS = 30
 # Option: {"thres", "top-k"}
 _C.DEMO.VIS_MODE = "thres"
 # Threshold for common class names.
-_C.DEMO.COMMON_CLASS_THRES = 0.3
+_C.DEMO.COMMON_CLASS_THRES = 0.7
 # Theshold for uncommon class names. This will not be
 # used if `_C.DEMO.COMMON_CLASS_NAMES` is empty.
 _C.DEMO.UNCOMMON_CLASS_THRES = 0.3
