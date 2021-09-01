@@ -877,7 +877,7 @@ _C.DEMO.OUTPUT_FPS = -1
 # Input format from demo video reader ("RGB" or "BGR").
 _C.DEMO.INPUT_FORMAT = "BGR"
 # Draw visualization frames in [keyframe_idx - CLIP_VIS_SIZE, keyframe_idx + CLIP_VIS_SIZE] inclusively.
-_C.DEMO.CLIP_VIS_SIZE = 20
+_C.DEMO.CLIP_VIS_SIZE = 25
 # Number of processes to run video visualizer.
 _C.DEMO.NUM_VIS_INSTANCES = 2
 
@@ -900,13 +900,13 @@ _C.DEMO.FPS = 30
 # Option: {"thres", "top-k"}
 _C.DEMO.VIS_MODE = "top-k"
 # Threshold for common class names.
-_C.DEMO.COMMON_CLASS_THRES = 0.3
+_C.DEMO.COMMON_CLASS_THRES = 0.7
 # Theshold for uncommon class names. This will not be
 # used if `_C.DEMO.COMMON_CLASS_NAMES` is empty.
 _C.DEMO.UNCOMMON_CLASS_THRES = 0.3
 # This is chosen based on distribution of examples in
 # each classes in AVA dataset.
-_C.DEMO.COMMON_CLASS_NAMES = []
+_C.DEMO.COMMON_CLASS_NAMES = NoneTEST
 # Slow-motion rate for the visualization. The visualized portions of the
 # video will be played `_C.DEMO.SLOWMO` times slower than usual speed.
 _C.DEMO.SLOWMO = 1
