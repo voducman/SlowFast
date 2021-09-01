@@ -96,7 +96,7 @@ def construct_loader(cfg, split, is_precise_bn=False):
     elif split in ["val"]:
         dataset_name = cfg.TRAIN.DATASET
         batch_size = int(cfg.TRAIN.BATCH_SIZE / max(1, cfg.NUM_GPUS))
-        shuffle = False
+        shuffle = True
         drop_last = False
     elif split in ["test"]:
         dataset_name = cfg.TEST.DATASET
