@@ -15,7 +15,7 @@ DATA:
   TEST_CROP_SIZE: 256
   INPUT_CHANNEL_NUM: [3, 3]
   DECODING_BACKEND: "pyav"
-  PATH_TO_DATA_DIR: "/u01/server_100_backup/ComputerVision/ActionRecognition/datasets/kinetics/400/extracted"
+  PATH_TO_DATA_DIR: "/u01/khienpv1/manvd1/action-recognition/data/kinetics-val-400"
 SLOWFAST:
   ALPHA: 4
   BETA_INV: 8
