@@ -1,7 +1,7 @@
 TRAIN:
   ENABLE: True
   DATASET: kinetics
-  BATCH_SIZE: 16
+  BATCH_SIZE: 24
   EVAL_PERIOD: 2
   CHECKPOINT_PERIOD: 2
   AUTO_RESUME: True
@@ -15,7 +15,7 @@ DATA:
   TEST_CROP_SIZE: 256
   INPUT_CHANNEL_NUM: [3, 3]
   DECODING_BACKEND: "pyav"
-  PATH_TO_DATA_DIR: "/u01/khienpv1/manvd1/action-recognition/data/kinetics-400/val"
+  PATH_TO_DATA_DIR: "/u01/server_100_backup/ComputerVision/ActionRecognition/datasets/kinetics/400/extracted"
 SLOWFAST:
   ALPHA: 4
   BETA_INV: 8
@@ -56,9 +56,9 @@ MODEL:
 TEST:
   ENABLE: False
   DATASET: kinetics
-  BATCH_SIZE: 10
+  BATCH_SIZE: 24
 DATA_LOADER:
-  NUM_WORKERS: 8
+  NUM_WORKERS: 16
   PIN_MEMORY: True
   ENABLE_MULTI_THREAD_DECODE: True
 TENSORBOARD:
@@ -80,4 +80,4 @@ AUG:
 NUM_GPUS: 2
 NUM_SHARDS: 1
 RNG_SEED: 0
-OUTPUT_DIR: "output/validate/pretrained"
+OUTPUT_DIR: "output/val/pretrained-400"
