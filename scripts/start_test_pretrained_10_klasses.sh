@@ -1,8 +1,8 @@
-export CUDA_VISIBLE_DEVICES=2
+export CUDA_VISIBLE_DEVICES=4
 conda activate action-recognition
 export PYTHONPATH=/u01/manvd1/action-recognition/SlowFast/slowfast:$PYTHONPATH
-test -f "logs/slowfast-test.log" && rm logs/slowfast-test.log
-screen -L -Logfile logs/slowfast-test.log -S slowfast-test -m bash -c "python tools/run_net.py \
+test -f "logs/slowfast-test-pretrain-10.log" && rm logs/slowfast-test-pretrain-10.log
+screen -L -Logfile logs/slowfast-test-pretrain-10.log -S slowfast-test-pt-10 -m bash -c "python tools/run_net.py \
   --cfg configs/Kinetics/custom/SLOWFAST_8x8_R50.yaml \
   DATA.PATH_TO_DATA_DIR /u01/khienpv1/manvd1/action-recognition/data/kinetics-400/val \
   TEST.CHECKPOINT_FILE_PATH checkpoints/SLOWFAST_8x8_R50.pkl \
