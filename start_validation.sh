@@ -1,4 +1,4 @@
-export CUDA_VISIBLE_DEVICES=2,3
+export CUDA_VISIBLE_DEVICES=4,5
 conda activate action-recognition
 export PYTHONPATH=/u01/khienpv1/manvd1/action-recognition/SlowFast/slowfast:$PYTHONPATH
 test -f "logs/slowfast-validate.log" && rm logs/slowfast-validate.log
