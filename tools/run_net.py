@@ -9,7 +9,7 @@ from slowfast.utils.misc import launch_job
 from slowfast.utils.parser import load_config, parse_args
 
 # from demo_net import demo
-# from test_net import test
+from test_net import test
 from train_net import train
 from visualization import visualize
 
@@ -28,9 +28,9 @@ def main():
     if cfg.TRAIN.ENABLE:
         launch_job(cfg=cfg, init_method=args.init_method, func=train)
 
-    # Perform multi-clip testing.
-    # if cfg.TEST.ENABLE:
-    #     launch_job(cfg=cfg, init_method=args.init_method, func=test)
+    #Perform multi-clip testing.
+    if cfg.TEST.ENABLE:
+        launch_job(cfg=cfg, init_method=args.init_method, func=test)
 
     # Perform model visualization.
     if cfg.TENSORBOARD.ENABLE and (
