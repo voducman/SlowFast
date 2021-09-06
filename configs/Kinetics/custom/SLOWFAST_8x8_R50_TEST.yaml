@@ -65,7 +65,7 @@ DATA_LOADER:
   ENABLE_MULTI_THREAD_DECODE: True
 TENSORBOARD:
   ENABLE: True
-  CLASS_NAMES_PATH: "/u01/khienpv1/manvd1/action-recognition/data/kinetics-400/val"
+  CLASS_NAMES_PATH: "/u01/khienpv1/manvd1/action-recognition/data/kinetics-400/class_id_mapping.json"
   CONFUSION_MATRIX:
     ENABLE: True
     SUBSET_PATH: "/u01/khienpv1/manvd1/action-recognition/data/kinetics-400/subset_classes.txt"
