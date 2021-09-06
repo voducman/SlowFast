@@ -758,7 +758,8 @@ _C.TENSORBOARD.CONFUSION_MATRIX = CfgNode()
 # Visualize confusion matrix.
 _C.TENSORBOARD.CONFUSION_MATRIX.ENABLE = False
 # Figure size of the confusion matrices plotted.
-_C.TENSORBOARD.CONFUSION_MATRIX.FIGSIZE = [8, 8]
+# _C.TENSORBOARD.CONFUSION_MATRIX.FIGSIZE = [8, 8]
+_C.TENSORBOARD.CONFUSION_MATRIX.FIGSIZE = [800, 800]
 # Path to a subset of categories to visualize.
 # File contains class names separated by newline characters.
 _C.TENSORBOARD.CONFUSION_MATRIX.SUBSET_PATH = ""

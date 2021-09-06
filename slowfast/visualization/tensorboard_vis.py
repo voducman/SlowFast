@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import torch
 from torch.utils.tensorboard import SummaryWriter
 from torchvision.utils import make_grid
-
+import numpy as np
 import slowfast.utils.logging as logging
 import slowfast.visualization.utils as vis_utils
 from slowfast.utils.misc import get_class_names
@@ -112,6 +112,8 @@ class TensorboardWriter(object):
                 cmtx = vis_utils.get_confusion_matrix(
                     preds, labels, self.cfg.MODEL.NUM_CLASSES
                 )
+                # save to np file
+                np.save('output/confusion-matrix.npy', cmtx)
                 # Add full confusion matrix.
                 add_confusion_matrix(
                     self.writer,
@@ -273,6 +275,7 @@ def add_confusion_matrix(
             class_names=sub_names,
             figsize=figsize,
         )
+
         # Add the confusion matrix image to writer.
         writer.add_figure(tag=tag, figure=sub_cmtx, global_step=global_step)
 
