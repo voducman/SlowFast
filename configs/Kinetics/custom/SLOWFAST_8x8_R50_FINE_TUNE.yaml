@@ -15,8 +15,7 @@ DATA:
   TEST_CROP_SIZE: 256
   INPUT_CHANNEL_NUM: [3, 3]
   DECODING_BACKEND: "pyav"
-#  PATH_TO_DATA_DIR: "/u01/khienpv1/manvd1/action-recognition/data/kinetics-400/train"
-  PATH_TO_DATA_DIR: "/u01/khienpv1/manvd1/action-recognition/data/kinetics-400-balance/train"
+  PATH_TO_DATA_DIR: "/u01/khienpv1/manvd1/action-recognition/data/kinetics-400/train"
 SLOWFAST:
   ALPHA: 4
   BETA_INV: 8
@@ -81,4 +80,4 @@ AUG:
 NUM_GPUS: 2
 NUM_SHARDS: 1
 RNG_SEED: 0
-OUTPUT_DIR: "output/balance/training-log-1e-4"
+OUTPUT_DIR: "output/updated/add-100-hugging"
