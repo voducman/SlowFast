@@ -78,7 +78,7 @@ TENSORBOARD:
                  # Path to txt file contains class names separated by newline characters.
                  # Only classes in this file will be visualized with histograms.
 
-NUM_GPUS: 2
+NUM_GPUS: 1
 NUM_SHARDS: 1
 RNG_SEED: 0
 OUTPUT_DIR: "output/test/add-100"
