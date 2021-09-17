@@ -56,7 +56,7 @@ MODEL:
 TEST:
   ENABLE: True
   DATASET: kinetics
-  BATCH_SIZE: 32
+  BATCH_SIZE: 16
   CHECKPOINT_TYPE: pytorch
   CHECKPOINT_FILE_PATH: "checkpoints/checkpoint_epoch_00056_445.pyth"
 DATA_LOADER:
