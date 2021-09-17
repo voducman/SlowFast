@@ -6,7 +6,7 @@ TRAIN:
   CHECKPOINT_PERIOD: 2
   AUTO_RESUME: True
   CHECKPOINT_TYPE: pytorch
-  CHECKPOINT_FILE_PATH: "checkpoints/checkpoint_epoch_00054_100.pyth"
+  CHECKPOINT_FILE_PATH: "checkpoints/checkpoint_epoch_00054_200.pyth"
 DATA:
   NUM_FRAMES: 32
   SAMPLING_RATE: 2
@@ -58,7 +58,7 @@ TEST:
   DATASET: kinetics
   BATCH_SIZE: 16
   CHECKPOINT_TYPE: pytorch
-  CHECKPOINT_FILE_PATH: "checkpoints/checkpoint_epoch_00054_100.pyth"
+  CHECKPOINT_FILE_PATH: "checkpoints/checkpoint_epoch_00054_200.pyth"
 DATA_LOADER:
   NUM_WORKERS: 32
   PIN_MEMORY: True
@@ -81,4 +81,4 @@ TENSORBOARD:
 NUM_GPUS: 1
 NUM_SHARDS: 1
 RNG_SEED: 0
-OUTPUT_DIR: "output/test/add-100"
+OUTPUT_DIR: "output/test/add-200"
