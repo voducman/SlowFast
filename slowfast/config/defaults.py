@@ -867,7 +867,7 @@ _C.DEMO.YOLOV5_SIZE = 's'
 # Increase this number for more frequent action predictions.
 # The number of overlapping frames cannot be larger than
 # half of the sequence length `cfg.DATA.NUM_FRAMES * cfg.DATA.SAMPLING_RATE`
-_C.DEMO.BUFFER_SIZE = 1
+_C.DEMO.BUFFER_SIZE = 32
 # If specified, the visualized outputs will be written this a video file of
 # this path. Otherwise, the visualized outputs will be displayed in a window.
 _C.DEMO.OUTPUT_FILE = ""
@@ -898,26 +898,15 @@ _C.DEMO.STARTING_SECOND = 900
 _C.DEMO.FPS = 30
 # Visualize with top-k predictions or predictions above certain threshold(s).
 # Option: {"thres", "top-k"}
-_C.DEMO.VIS_MODE = "thres"
+_C.DEMO.VIS_MODE = "top-k"
 # Threshold for common class names.
-_C.DEMO.COMMON_CLASS_THRES = 0.7
+_C.DEMO.COMMON_CLASS_THRES = 0.5
 # Theshold for uncommon class names. This will not be
 # used if `_C.DEMO.COMMON_CLASS_NAMES` is empty.
 _C.DEMO.UNCOMMON_CLASS_THRES = 0.9999
 # This is chosen based on distribution of examples in
 # each classes in AVA dataset.
-_C.DEMO.COMMON_CLASS_NAMES = [
-    "laughing",
-    "writing",
-    "playing keyboard",
-    "reading book",
-    "shaking hands",
-    "drinking",
-    "dining",
-    "playing piano",
-    "playing tennis",
-    "playing volleyball"
-]
+_C.DEMO.COMMON_CLASS_NAMES = None
 # Slow-motion rate for the visualization. The visualized portions of the
 # video will be played `_C.DEMO.SLOWMO` times slower than usual speed.
 _C.DEMO.SLOWMO = 1
