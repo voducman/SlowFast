@@ -81,4 +81,4 @@ TENSORBOARD:
 NUM_GPUS: 1
 NUM_SHARDS: 1
 RNG_SEED: 0
-OUTPUT_DIR: "output/test/add-200"
+OUTPUT_DIR: "output/test/add-445"
