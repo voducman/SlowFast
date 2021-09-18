@@ -105,7 +105,7 @@ def demo(cfg):
     if not os.path.isdir(cfg.DEMO.INPUT_VIDEO):
         raise Exception("Demo input video is currently not a directory.")
 
-    video_paths = glob(os.path.join(cfg.DEMO.INPUT_VIDEO, "*", "*.mp4"))
+    video_paths = glob(os.path.join(cfg.DEMO.INPUT_VIDEO, "*.mp4"))
     conf_output_dir = cfg.OUTPUT_DIR
 
     for video_path in video_paths:
