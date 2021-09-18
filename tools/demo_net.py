@@ -125,7 +125,7 @@ def demo(cfg):
             else:
                 frame_provider = VideoManager(cfg)
 
-            for task in tqdm(run_demo(cfg, frame_provider), total=frame_provider.batch_count):
+            for task in tqdm(run_demo(cfg, frame_provider)):
                 frame_provider.display(task)
 
             frame_provider.join()
