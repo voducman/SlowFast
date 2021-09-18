@@ -110,7 +110,6 @@ def demo(cfg):
 
     for video_path in video_paths:
         video_name = os.path.basename(video_path)
-        sub_dir = video_path.split("/")[-2]
         cfg.DEMO.INPUT_VIDEO = video_path
         cfg.DEMO.OUTPUT_FILE = os.path.join(cfg.OUTPUT_DIR, video_name)
 
