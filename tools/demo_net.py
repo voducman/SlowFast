@@ -106,14 +106,15 @@ def demo(cfg):
         raise Exception("Demo input video is currently not a directory.")
 
     video_paths = glob(os.path.join(cfg.DEMO.INPUT_VIDEO, "*.mp4"))
+    os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
 
     for video_path in video_paths:
+        print(video_path)
+        continue
         video_name = os.path.basename(video_path)
         cfg.DEMO.INPUT_VIDEO = video_path
         cfg.DEMO.OUTPUT_FILE = os.path.join(cfg.OUTPUT_DIR, video_name)
 
-        if not os.path.exists(cfg.OUTPUT_DIR):
-            os.makedirs(cfg.OUTPUT_DIR)
         # AVA format-specific visualization with precomputed boxes.
         if cfg.DETECTION.ENABLE and cfg.DEMO.PREDS_BOXES != "":
             precomputed_box_vis = AVAVisualizerWithPrecomputedBox(cfg)
