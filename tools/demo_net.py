@@ -109,8 +109,6 @@ def demo(cfg):
     os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
 
     for video_path in video_paths:
-        print(video_path)
-        continue
         video_name = os.path.basename(video_path)
         cfg.DEMO.INPUT_VIDEO = video_path
         cfg.DEMO.OUTPUT_FILE = os.path.join(cfg.OUTPUT_DIR, video_name)
