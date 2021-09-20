@@ -1,8 +1,7 @@
 detectron2_repo/
 output
 .idea
-*/__pycache__
-*/*/__pycache__
+__pycache__
 checkpoints
 *.log
 checkpoints/*
