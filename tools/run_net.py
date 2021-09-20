@@ -2,6 +2,8 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
 
 """Wrapper to train and test a video classification model."""
+import os
+
 from slowfast.config.defaults import assert_and_infer_cfg
 from slowfast.utils.misc import launch_job
 from slowfast.utils.parser import load_config, parse_args
@@ -19,6 +21,7 @@ def main():
     args = parse_args()
     cfg = load_config(args)
     cfg = assert_and_infer_cfg(cfg)
+    os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
 
     # Perform training.
     if cfg.TRAIN.ENABLE:
