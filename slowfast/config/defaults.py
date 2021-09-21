@@ -898,7 +898,7 @@ _C.DEMO.PREDS_BOXES = ""
 _C.DEMO.THREAD_ENABLE = False
 # Take one clip for every `DEMO.NUM_CLIPS_SKIP` + 1 for prediction and visualization.
 # This is used for fast demo speed by reducing the prediction/visualiztion frequency.
-# If -1, take the most recent read clip for visualization. This mode is only supported
+# If -1, take the most recOPTIMIZING_METHODent read clip for visualization. This mode is only supported
 # if `DEMO.THREAD_ENABLE` is set to True.
 _C.DEMO.NUM_CLIPS_SKIP = 0
 # Path to ground-truth boxes and labels (optional)
