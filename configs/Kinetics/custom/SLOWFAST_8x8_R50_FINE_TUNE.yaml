@@ -80,4 +80,4 @@ AUG:
 NUM_GPUS: 1
 NUM_SHARDS: 1
 RNG_SEED: 0
-OUTPUT_DIR: "output/w-falling/1e-4"
+OUTPUT_DIR: "output/w-falling/1e-5"
